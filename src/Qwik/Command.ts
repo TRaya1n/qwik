@@ -5,87 +5,94 @@ import { resolve } from "path";
 import { Qwik } from ".";
 
 class QwikCommand {
-    public constructor(options: QwikCommandOptions) {
-        this.init(options.client, options.path);
-        this.interactionCreate(options.client);
-        this.messageCreate(options, options.client);
-    }
+  public constructor(options: QwikCommandOptions) {
+    this.init(options.client, options.path);
+    this.interactionCreate(options.client);
+    this.messageCreate(options, options.client);
+  }
 
-    private init(client: Qwik, path: any) {
-        const folders = readdirSync(path);
-        for (const folder of folders) {
-            const files = readdirSync(`${path}/${folder}`);
-            for (const file of files) {
-                const f = require(resolve(path, folder, file));
-                if (f.SlashCommand) {
-                    this.SlashCommandHandler(f.SlashCommand, file, client);
-                }
-
-                if (f.MessageCommand) {
-                    this.MessageCommand(f.MessageCommand, file, client)
-                }
-            }
+  private init(client: Qwik, path: any) {
+    const folders = readdirSync(path);
+    for (const folder of folders) {
+      const files = readdirSync(`${path}/${folder}`);
+      for (const file of files) {
+        const f = require(resolve(path, folder, file));
+        if (f.SlashCommand) {
+          this.SlashCommandHandler(f.SlashCommand, file, client);
         }
-    }
 
-    private SlashCommandHandler(object: any, file: any,  client: Qwik) {
-        if (object.data && object.execute) {
-            client.commands.set(object.data.name, object);
-            client.commandsArray.push(object.data.toJSON());
-            this.DeploySlashCommands(client.commandsArray);
-        } else {
-            console.error(`[COMMAND_ERROR.SLASHCOMMAND]-${file}: Missing data / execute properties.`)
+        if (f.MessageCommand) {
+          this.MessageCommand(f.MessageCommand, file, client);
         }
+      }
     }
+  }
 
-    private MessageCommand(object: any, file: any, client: Qwik) {
-        if (object.name && object.execute) {
-            client.messageCommands.set(object.name, object)
-        } else {
-            console.error(`[COMMAND_ERROR.MESSAGECOMMAND]-${file}: Missing name / execute properties.`)
-        }
+  private SlashCommandHandler(object: any, file: any, client: Qwik) {
+    if (object.data && object.execute) {
+      client.commands.set(object.data.name, object);
+      client.commandsArray.push(object.data.toJSON());
+      this.DeploySlashCommands(client.commandsArray);
+    } else {
+      console.error(
+        `[COMMAND_ERROR.SLASHCOMMAND]-${file}: Missing data / execute properties.`,
+      );
     }
+  }
 
-    private async DeploySlashCommands(commands: []) {
-        const rest = new REST().setToken(`${process.env.DISCORD_TOKEN}`);
-        return await rest.put(Routes.applicationCommands(`${process.env.CLIENT_ID}`), {
-            body: commands
-        });
+  private MessageCommand(object: any, file: any, client: Qwik) {
+    if (object.name && object.execute) {
+      client.messageCommands.set(object.name, object);
+    } else {
+      console.error(
+        `[COMMAND_ERROR.MESSAGECOMMAND]-${file}: Missing name / execute properties.`,
+      );
     }
+  }
 
-    private interactionCreate(client: Qwik) {
-        client.on('interactionCreate', (interaction) => {
-            if (!interaction.isChatInputCommand()) return;
+  private async DeploySlashCommands(commands: []) {
+    const rest = new REST().setToken(`${process.env.DISCORD_TOKEN}`);
+    return await rest.put(
+      Routes.applicationCommands(`${process.env.CLIENT_ID}`),
+      {
+        body: commands,
+      },
+    );
+  }
 
-            const command: any = client.commands.get(interaction.commandName);
+  private interactionCreate(client: Qwik) {
+    client.on("interactionCreate", (interaction) => {
+      if (!interaction.isChatInputCommand()) return;
 
-            if (!command) {
-                console.log('Command not found')
-                return;
-            }
+      const command: any = client.commands.get(interaction.commandName);
 
-            command.execute(client, interaction);
-        });
-    }
+      if (!command) {
+        console.log("Command not found");
+        return;
+      }
 
-    private messageCreate(options: QwikCommandOptions, client: Qwik) {
-        client.on('messageCreate', (message) => {
-            const prefix = options.message?.prefix;
-            if (message.author.bot) return;
-            if (!message.guild) return;
-            if (!message.content.startsWith(`${prefix}`)) return;
+      command.execute(client, interaction);
+    });
+  }
 
-            const args = message.content.slice(prefix?.length).trim().split(/ +/g);
-            const input = args.shift()?.toLowerCase();
+  private messageCreate(options: QwikCommandOptions, client: Qwik) {
+    client.on("messageCreate", (message) => {
+      const prefix = options.message?.prefix;
+      if (message.author.bot) return;
+      if (!message.guild) return;
+      if (!message.content.startsWith(`${prefix}`)) return;
 
-            const command = client.messageCommands.get(`${input}`);
+      const args = message.content
+        .slice(prefix?.length)
+        .trim()
+        .split(/ +/g);
+      const input = args.shift()?.toLowerCase();
 
-            console.log(command);
-            command.execute(message);
-        })
-    }
+      const command = client.messageCommands.get(`${input}`);
+
+      command.execute(client, message);
+    });
+  }
 }
 
-export {
-    QwikCommand
-}
+export { QwikCommand };
