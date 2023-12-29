@@ -11,6 +11,7 @@ class Qwik extends Client {
     }
 
     public commands = new Collection<string, ApplicationCommandResolvable>();
+    public messageCommands = new Collection<string, any>();
     public commandsArray: any = [];
 
     public initQwikEvent(QwikEventOptionsArgs: QwikEventOptions) {

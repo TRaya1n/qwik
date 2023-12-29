@@ -15,4 +15,4 @@ const client = new Qwik({
 });
 
 client.initQwikEvent({ client: client, path: './src/events/' });
-client.initQwikCommand({ client: client, path: './src/commands/' });
+client.initQwikCommand({ client: client, path: './src/commands/', message: { prefix: 'qw.' } });

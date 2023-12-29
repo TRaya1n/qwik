@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder, Message } from "discord.js";
 import { Qwik } from "../../Qwik/index";
 
 export const SlashCommand = {
@@ -27,5 +27,13 @@ export const SlashCommand = {
         .setTimestamp();
 
         return interaction.editReply({ content: null, embeds: [embed] });
+    }
+}
+
+export const MessageCommand = {
+    name: 'ping',
+    execute: (message: Message) => {
+        console.log('Read')
+        message.channel.send(`Ping`);
     }
 }
