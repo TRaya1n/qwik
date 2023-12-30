@@ -16,8 +16,10 @@ class QwikEvent {
       const files = readdirSync(`${path}/${folder}/`);
       for (const file of files) {
         const f = require(resolve(path, folder, file));
-        if (file.replace('.ts', '').match('ready')) {
-          client.once(file.replace('.ts', ''), (...args) => f.Event(...args, start));
+        if (file.replace(".ts", "").match("ready")) {
+          client.once(file.replace(".ts", ""), (...args) =>
+            f.Event(...args, start),
+          );
         } else {
           client.on(file.replace(".ts", ""), (...args) => f.Event(...args));
         }

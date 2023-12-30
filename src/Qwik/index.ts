@@ -36,7 +36,7 @@ class Qwik extends Client {
   }
 
   /**
-   * 
+   *
    * @returns Date
    */
   public uptimeQwik() {

@@ -50,7 +50,7 @@ class QwikCommand {
 
       if (Array.isArray(object.aliases)) {
         object.aliases.forEach((element: any) => {
-          console.log(element)
+          console.log(element);
           client.aliases.set(element, object);
         });
       }
@@ -99,13 +99,13 @@ class QwikCommand {
         .split(/ +/g);
       const input = args.shift()?.toLowerCase();
 
-      let command = client.messageCommands.get(`${input}`)
+      let command = client.messageCommands.get(`${input}`);
       if (!command) command = client.aliases.get(`${input}`);
 
       if (!command) {
         return;
       }
-      
+
       command.execute(client, message);
     });
   }
