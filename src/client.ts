@@ -14,6 +14,7 @@ const client = new Qwik({
   allowedMentions: { repliedUser: false },
 });
 
+client.initQwikLogger();
 client.initQwikEvent({ client: client, path: "./src/events/" });
 client.initQwikCommand({
   client: client,
