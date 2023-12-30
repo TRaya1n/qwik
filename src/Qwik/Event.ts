@@ -9,14 +9,22 @@ class QwikEvent {
   }
 
   private init(client: Client, path: any) {
+    const start = Date.now();
+
     const folders = readdirSync(path);
     for (const folder of folders) {
       const files = readdirSync(`${path}/${folder}/`);
       for (const file of files) {
         const f = require(resolve(path, folder, file));
-        client.on(file.replace(".ts", ""), (...args) => f.Event(...args));
+        if (file.replace('.ts', '').match('ready')) {
+          client.once(file.replace('.ts', ''), (...args) => f.Event(...args, start));
+        } else {
+          client.on(file.replace(".ts", ""), (...args) => f.Event(...args));
+        }
       }
     }
+
+    console.log(`Loaded event files! (in ${Date.now() - start}ms)`);
   }
 }
 

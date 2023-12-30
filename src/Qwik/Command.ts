@@ -12,6 +12,8 @@ class QwikCommand {
   }
 
   private init(client: Qwik, path: any) {
+    const start = Date.now();
+
     const folders = readdirSync(path);
     for (const folder of folders) {
       const files = readdirSync(`${path}/${folder}`);
@@ -22,17 +24,19 @@ class QwikCommand {
         }
 
         if (f.MessageCommand) {
-          this.MessageCommand(f.MessageCommand, file, client);
+          this.MessageCommandHandler(f.MessageCommand, file, client);
         }
       }
     }
+
+    console.log(`Loaded command files! (in ${Date.now() - start}ms)`);
+    this.DeploySlashCommands(client.commandsArray);
   }
 
   private SlashCommandHandler(object: any, file: any, client: Qwik) {
     if (object.data && object.execute) {
       client.commands.set(object.data.name, object);
       client.commandsArray.push(object.data.toJSON());
-      this.DeploySlashCommands(client.commandsArray);
     } else {
       console.error(
         `[COMMAND_ERROR.SLASHCOMMAND]-${file}: Missing data / execute properties.`,
@@ -40,9 +44,16 @@ class QwikCommand {
     }
   }
 
-  private MessageCommand(object: any, file: any, client: Qwik) {
+  private MessageCommandHandler(object: any, file: any, client: Qwik) {
     if (object.name && object.execute) {
       client.messageCommands.set(object.name, object);
+
+      if (Array.isArray(object.aliases)) {
+        object.aliases.forEach((element: any) => {
+          console.log(element)
+          client.aliases.set(element, object);
+        });
+      }
     } else {
       console.error(
         `[COMMAND_ERROR.MESSAGECOMMAND]-${file}: Missing name / execute properties.`,
@@ -88,8 +99,13 @@ class QwikCommand {
         .split(/ +/g);
       const input = args.shift()?.toLowerCase();
 
-      const command = client.messageCommands.get(`${input}`);
+      let command = client.messageCommands.get(`${input}`)
+      if (!command) command = client.aliases.get(`${input}`);
 
+      if (!command) {
+        return;
+      }
+      
       command.execute(client, message);
     });
   }
