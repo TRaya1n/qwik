@@ -1,6 +1,7 @@
 import {
   ChatInputCommandInteraction,
   EmbedBuilder,
+  Message,
   SlashCommandBuilder,
 } from "discord.js";
 import { Qwik } from "../../Qwik";
@@ -24,5 +25,23 @@ export const SlashCommand = {
       .setTimestamp();
 
     return interaction.editReply({ content: null, embeds: [embed] });
+  },
+};
+
+export const MessageCommand = {
+  name: "uptime",
+  execute: async (client: Qwik, message: Message) => {
+    const msg = await message.channel.send({ content: `\`Loading data...\`` });
+
+    const embed = new EmbedBuilder()
+      .setAuthor({
+        name: message.author.username.toString(),
+        iconURL: message.author.displayAvatarURL(),
+      })
+      .setDescription(`**Uptime:** ${client.uptimeQwik()}`)
+      .setColor("Greyple")
+      .setTimestamp();
+
+    return msg.edit({ content: null, embeds: [embed] });
   },
 };

@@ -1,4 +1,9 @@
-import { ChatInputCommandInteraction, REST, Routes } from "discord.js";
+import {
+  ChatInputCommandInteraction,
+  EmbedBuilder,
+  REST,
+  Routes,
+} from "discord.js";
 import { QwikCommandOptions } from "./interfaces/QwikCommandOptions";
 import { readdirSync } from "fs";
 import { resolve } from "path";
@@ -50,7 +55,6 @@ class QwikCommand {
 
       if (Array.isArray(object.aliases)) {
         object.aliases.forEach((element: any) => {
-          console.log(element);
           client.aliases.set(element, object);
         });
       }
@@ -74,15 +78,37 @@ class QwikCommand {
   private interactionCreate(client: Qwik) {
     client.on("interactionCreate", (interaction) => {
       if (!interaction.isChatInputCommand()) return;
+      console.log(
+        `[INTERACTION_COMMAND] Executing ${interaction.commandName} command...`,
+      );
 
       const command: any = client.commands.get(interaction.commandName);
 
       if (!command) {
-        console.log("Command not found");
+        console.warn(
+          `[INTERACTION_COMMAND] ${interaction.commandName} command not found.`,
+        );
+        const embed = new EmbedBuilder()
+          .setAuthor({
+            name: interaction.user?.username.toString(),
+            iconURL: interaction.user?.displayAvatarURL(),
+          })
+          .setDescription(`${interaction.commandName} command not found.`)
+          .setColor("Orange")
+          .setTimestamp();
+        interaction.reply({ embeds: [embed] });
         return;
       }
 
-      command.execute(client, interaction);
+      try {
+        command.execute(client, interaction);
+        console.log(
+          `[INTERACTION_COMMAND] Executed ${interaction.commandName}.`,
+        );
+      } catch (error) {
+        console.error(`[INTERACTION_COMMAND] Error:`);
+        console.error(error);
+      }
     });
   }
 
@@ -103,10 +129,16 @@ class QwikCommand {
       if (!command) command = client.aliases.get(`${input}`);
 
       if (!command) {
+        console.warn(`[MESSAGE_COMMAND] ${message.content} not found.`);
         return;
       }
 
-      command.execute(client, message);
+      try {
+        command.execute(client, message, args);
+      } catch (error) {
+        console.error(`[MESSAGE_COMMAND] Error:`);
+        console.error(error);
+      }
     });
   }
 }
