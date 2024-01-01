@@ -45,7 +45,9 @@ export const SlashCommand = {
 
 export const MessageCommand = {
   name: "ping",
-  aliases: ["p", "h"],
+  aliases: [],
+  category: "bot",
+  description: `Returns bot ping!`,
   execute: async (client: Qwik, message: Message) => {
     const msg = await message.channel.send({ content: `\`Loading data...\`` });
 

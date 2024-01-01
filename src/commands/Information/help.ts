@@ -6,11 +6,15 @@ import {
   ComponentType,
   EmbedBuilder,
   Message,
+  codeBlock,
 } from "discord.js";
 import { Qwik } from "../../Qwik";
 
 export const MessageCommand = {
   name: "help",
+  aliases: [],
+  category: "information",
+  description: "See all the comands, description & aliases!",
   execute: async (client: Qwik, message: Message, args: any[]) => {
     const msg = await message.channel.send({
       content: `\`Loading help command...\``,
@@ -76,11 +80,11 @@ export const MessageCommand = {
 
         const row = new ActionRowBuilder().addComponents(
           new ButtonBuilder()
-            .setCustomId("category-bot")
+            .setCustomId("Information-help.ts-category_bot")
             .setStyle(ButtonStyle.Secondary)
             .setLabel("Bot"),
           new ButtonBuilder()
-            .setCustomId("category-information")
+            .setCustomId("Information-help.ts-category_information")
             .setStyle(ButtonStyle.Secondary)
             .setLabel("Information"),
         );
@@ -90,7 +94,7 @@ export const MessageCommand = {
       });
 
       collector.on("end", (collected: string, reason: string) => {
-        console.debug(collected, reason);
+        return;
       });
     }
   },
@@ -140,4 +144,45 @@ function message_help_(client: Qwik, message: Message, args: any[]) {
   }
 
   message.edit({ content: null, embeds: [embed] });
+}
+
+function searchCategory(client: Qwik, category: String) {
+  return client.messageCommands
+    .filter((commands: any) => {
+      return commands.category === category;
+    })
+    .map((element: any) => {
+      return `${codeBlock(
+        "js",
+        `${element.name}: {\n Aliases: [${
+          element.aliases ? element.aliases.join(", ") : null
+        }]\n Description: "${
+          element.description ? element.description : null
+        }"\n}`,
+      )}`;
+    })
+    .join("\n");
+}
+
+export async function Buttons(
+  interaction: ButtonInteraction,
+  client: Qwik,
+  customId: string,
+) {
+  await interaction.deferReply({ ephemeral: true });
+  const embed = new EmbedBuilder()
+    .setAuthor({
+      name: interaction.user?.username,
+      iconURL: interaction.user?.displayAvatarURL(),
+    })
+    .setColor("Greyple")
+    .setTimestamp();
+
+  if (customId[2] === "category_bot") {
+    embed.setDescription(`${searchCategory(client, "bot")}`);
+    return interaction.editReply({ embeds: [embed] });
+  } else if (customId[2] === "category_information") {
+    embed.setDescription(`${searchCategory(client, "information")}`);
+    interaction.editReply({ embeds: [embed] });
+  }
 }

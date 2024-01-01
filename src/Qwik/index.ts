@@ -11,6 +11,8 @@ import { QwikCommandOptions } from "./interfaces/QwikCommandOptions";
 import { QwikCommand } from "./Command";
 import moment from "moment";
 import { QwikLogger } from "./Logger";
+import { QwikButtonOptions } from "./interfaces/QwikButtonOptions";
+import { QwikButton } from "./QwikButton";
 
 class Qwik extends Client {
   constructor(options: ClientOptions) {
@@ -27,8 +29,16 @@ class Qwik extends Client {
     return new QwikEvent(QwikEventOptionsArgs);
   }
 
-  public initQwikCommand(QwikCommandOptionsArgs: QwikCommandOptions) {
-    return new QwikCommand(QwikCommandOptionsArgs);
+  public initQwikCommand(
+    QwikCommandOptionsArgs: QwikCommandOptions,
+    button: boolean,
+    path: string,
+  ) {
+    const cmdhandler = new QwikCommand(QwikCommandOptionsArgs);
+    if (button) {
+      const btnhandler = new QwikButton({ client: this, path });
+      return { cmdhandler, btnhandler };
+    }
   }
 
   public initQwikLogger() {
