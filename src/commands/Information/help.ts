@@ -1,4 +1,12 @@
-import { EmbedBuilder, Message } from "discord.js";
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
+  ComponentType,
+  EmbedBuilder,
+  Message,
+} from "discord.js";
 import { Qwik } from "../../Qwik";
 
 export const MessageCommand = {
@@ -28,12 +36,62 @@ export const MessageCommand = {
           iconURL: message.author.displayAvatarURL(),
         })
         .setDescription(
-          `**Click [here](https://docs.qwik.gg/commands/#all) for additional help with commands!**`,
+          `**Click [here](https://docs.qwik.gg/commands/?t=m&i=000&source=help_command_${message.author.id}_${message.guildId}) for additional help with commands!**`,
         )
         .setColor("Greyple")
         .setTimestamp();
 
-      return msg.edit({ content: null, embeds: [embed] });
+      const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setCustomId("show_more")
+          .setStyle(ButtonStyle.Primary)
+          .setLabel("Show more"),
+      );
+
+      msg.edit({
+        content: null,
+        embeds: [embed],
+        components: [row],
+      });
+
+      const collector = await message.channel.createMessageComponentCollector({
+        componentType: ComponentType.Button,
+      });
+
+      collector.on("collect", async (interaction: ButtonInteraction) => {
+        if (msg.deletable) {
+          await msg.delete();
+        }
+
+        await interaction.deferReply();
+
+        const embed = new EmbedBuilder()
+          .setAuthor({
+            name: interaction.user.username.toString(),
+            iconURL: interaction.user.displayAvatarURL(),
+          })
+          .setDescription(`**...more**`)
+          .setColor("Greyple")
+          .setTimestamp();
+
+        const row = new ActionRowBuilder().addComponents(
+          new ButtonBuilder()
+            .setCustomId("category-bot")
+            .setStyle(ButtonStyle.Secondary)
+            .setLabel("Bot"),
+          new ButtonBuilder()
+            .setCustomId("category-information")
+            .setStyle(ButtonStyle.Secondary)
+            .setLabel("Information"),
+        );
+
+        interaction.editReply({ embeds: [embed], components: [row] });
+        collector.stop();
+      });
+
+      collector.on("end", (collected: string, reason: string) => {
+        console.debug(collected, reason);
+      });
     }
   },
 };
