@@ -1,9 +1,15 @@
-import { Client } from "discord.js";
+import { ActivityType } from "discord.js";
+import { Qwik } from "../../Qwik";
 
-export function Event(client: Client, start: number) {
+export async function Event(client: Qwik, start: number) {
   console.log(
     `Ready! ${client.user?.username} (in ${Math.floor(
       (Date.now() - start) / 1000,
     )}s)`,
   );
+
+  await client.user?.setActivity({
+    name: `qw.`,
+    type: ActivityType.Listening,
+  });
 }

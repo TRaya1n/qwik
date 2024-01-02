@@ -14,7 +14,7 @@ const client = new Qwik({
   allowedMentions: { repliedUser: false },
 });
 
-client.initQwikLogger();
+client.initQwikLogger().init();
 client.initQwikEvent({ client: client, path: "./src/events/" });
 client.initQwikCommand(
   {
@@ -23,5 +23,5 @@ client.initQwikCommand(
     message: { prefix: "qw." },
   },
   true,
-  './src/commands/'
+  "./src/commands/",
 );

@@ -42,7 +42,7 @@ class Qwik extends Client {
   }
 
   public initQwikLogger() {
-    return new QwikLogger().init();
+    return new QwikLogger();
   }
 
   /**
