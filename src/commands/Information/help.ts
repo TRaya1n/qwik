@@ -74,7 +74,13 @@ export const MessageCommand = {
             name: interaction.user.username.toString(),
             iconURL: interaction.user.displayAvatarURL(),
           })
-          .setDescription(`**...more**`)
+          .setDescription(
+            `*Here you can see a list of my features!* - Click the buttons to view the category commands.\n> **[Bot](${link(
+              "bot",
+            )}) - General bot commands**\n> **[Information](${link(
+              "information",
+            )}) - Information commands**`,
+          )
           .setColor("Greyple")
           .setTimestamp();
 
@@ -162,6 +168,10 @@ function searchCategory(client: Qwik, category: String) {
       )}`;
     })
     .join("\n");
+}
+
+function link(path: string) {
+  return `https://qwik.gg/commands/?search=${path}&force=true&utm_source=help_command`;
 }
 
 export async function Buttons(
