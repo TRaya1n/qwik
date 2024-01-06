@@ -93,6 +93,10 @@ export const MessageCommand = {
             .setCustomId("Information-help.ts-category_information")
             .setStyle(ButtonStyle.Secondary)
             .setLabel("Information"),
+          new ButtonBuilder()
+            .setCustomId("Information-help.ts-category_moderation")
+            .setStyle(ButtonStyle.Secondary)
+            .setLabel("Moderation"),
         );
 
         interaction.editReply({ embeds: [embed], components: [row] });
@@ -153,12 +157,12 @@ function message_help_(client: Qwik, message: Message, args: any[]) {
 }
 
 function searchCategory(client: Qwik, category: String) {
-  return client.messageCommands
+  const r = client.messageCommands
     .filter((commands: any) => {
       return commands.category === category;
     })
     .map((element: any) => {
-      return `${codeBlock(
+      `${codeBlock(
         "js",
         `${element.name}: {\n Aliases: [${
           element.aliases ? element.aliases.join(", ") : null
@@ -168,6 +172,8 @@ function searchCategory(client: Qwik, category: String) {
       )}`;
     })
     .join("\n");
+    // prevent errors(;):
+  return r ? r : "No commands found in the 'Moderation' category";
 }
 
 function link(path: string) {
@@ -193,6 +199,9 @@ export async function Buttons(
     return interaction.editReply({ embeds: [embed] });
   } else if (customId[2] === "category_information") {
     embed.setDescription(`${searchCategory(client, "information")}`);
+    interaction.editReply({ embeds: [embed] });
+  } else if (customId[2] === "category_moderation") {
+    embed.setDescription(`${searchCategory(client, "moderation")}`);
     interaction.editReply({ embeds: [embed] });
   }
 }

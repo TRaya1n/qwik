@@ -25,3 +25,4 @@ client.initQwikCommand(
   true,
   "./src/commands/",
 );
+client.initQwikMongoose();

@@ -13,6 +13,8 @@ import moment from "moment";
 import { QwikLogger } from "./Logger";
 import { QwikButtonOptions } from "./interfaces/QwikButtonOptions";
 import { QwikButton } from "./QwikButton";
+import mongoose from "mongoose";
+import { QwikMongoose } from "./QwikMongoose";
 
 class Qwik extends Client {
   constructor(options: ClientOptions) {
@@ -39,6 +41,11 @@ class Qwik extends Client {
       const btnhandler = new QwikButton({ client: this, path });
       return { cmdhandler, btnhandler };
     }
+    return { cmdhandler };
+  }
+
+  public initQwikMongoose(uri?: string | undefined, Options?: mongoose.MongooseOptions) {
+    return new QwikMongoose(uri, Options);
   }
 
   public initQwikLogger() {
