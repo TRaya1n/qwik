@@ -15,19 +15,8 @@ export const SlashCommand = {
     .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages),
   execute: async (client: Qwik, interaction: ChatInputCommandInteraction) => {
     await interaction.deferReply({ ephemeral: true });
-    interaction.editReply({ content: `\`Executing command...\`` });
 
-    try {
-      const messages = await interaction.channel?.messages
-        .fetch({
-          limit: 20,
-          cache: false,
-        })
-        .catch(console.debug);
-
-        await deleteMessagesSafely(interaction);
-
-    interaction.editReply({ content: `\`Executed command.\`` });
+    await deleteMessagesSafely(interaction);
 
     const embed = new EmbedBuilder()
       .setAuthor({
@@ -39,28 +28,42 @@ export const SlashCommand = {
       .setFooter({ text: `Executed by ${interaction.user.username}` })
       .setTimestamp();
 
-    interaction.channel?.send({ embeds: [embed] });
+    setTimeout(() => {
+      interaction.channel?.send({ embeds: [embed] });
+    }, 2000);
+
+    interaction.editReply({ content: `**Cleared 20 messages**` });
   },
 };
-
 
 async function deleteMessagesSafely(interaction: ChatInputCommandInteraction) {
   const { client } = interaction;
   try {
-    const messages = await interaction.channel?.messages.fetch({
-    limit: 20,
-    cache: false
-  });
+    const messages = await interaction.channel?.messages
+      .fetch({
+        limit: 20,
+        cache: false,
+      })
+      .catch((error) => {
+        console.debug(error, ".catch");
+      });
 
-  messages?.filter((message) => message.author.id === client.user?.id)
-  .map(message=>message)
-  .forEach((message) => {
-    if (message.deletable) {
-      message.delete();
+    messages
+      ?.filter((message) => message.author.id === client.user?.id)
+      .map((message) => message)
+      .forEach((message) => {
+        if (message.deletable) {
+          message.delete().catch((error) => {
+            if (error.rawError.message === "Unknown Message") {
+              interaction.editReply(`Error: ${error.rawError.message}`);
+            }
+          });
+        }
+      });
+  } catch (error) {
+    console.debug(error, "catch");
+    if (error.rawError.message === "Unknown Message") {
+      interaction.editReply(`Error: ${error.rawError.message}`);
     }
-  })
-} catch (error) {
-  console.debug(error);
-  return error;
-}
+  }
 }

@@ -45,9 +45,9 @@ export const MessageCommand = {
         .setColor("Greyple")
         .setTimestamp();
 
-      const row = new ActionRowBuilder().addComponents(
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
-          .setCustomId("show_more")
+          .setCustomId("collector-show_more")
           .setStyle(ButtonStyle.Primary)
           .setLabel("Show more"),
       );
@@ -84,7 +84,7 @@ export const MessageCommand = {
           .setColor("Greyple")
           .setTimestamp();
 
-        const row = new ActionRowBuilder().addComponents(
+        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
           new ButtonBuilder()
             .setCustomId("Information-help.ts-category_bot")
             .setStyle(ButtonStyle.Secondary)

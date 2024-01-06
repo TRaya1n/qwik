@@ -14,7 +14,7 @@ class QwikButton {
       if (!interaction.isButton()) return;
       try {
         const customId = interaction.customId.split("-");
-        if (customId[0].includes("show_more")) return;
+        if (customId[0].startsWith("collector")) return;
 
         const file = require(resolve(path, customId[0], customId[1]));
         file.Buttons(interaction, client, customId);
