@@ -19,7 +19,7 @@ class QwikButton {
         const file = require(resolve(path, customId[0], customId[1]));
         file.Buttons(interaction, client, customId);
       } catch (error) {
-        console.error("[BUTTON] Errro:");
+        console.error("[BUTTON] Error:");
         console.debug(error);
       }
     });

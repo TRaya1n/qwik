@@ -7,9 +7,4 @@ export async function Event(client: Qwik, start: number) {
       (Date.now() - start) / 1000,
     )}s)`,
   );
-
-  await client.user?.setActivity({
-    name: `qw.`,
-    type: ActivityType.Listening,
-  });
 }

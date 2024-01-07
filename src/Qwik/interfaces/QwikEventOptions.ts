@@ -1,6 +1,6 @@
-import { Client } from "discord.js";
+import { Qwik } from "..";
 
 export interface QwikEventOptions {
-  client: Client;
+  client: Qwik;
   path: any;
 }

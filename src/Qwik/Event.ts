@@ -1,14 +1,14 @@
-import { Client, Events } from "discord.js";
 import { QwikEventOptions } from "./interfaces/QwikEventOptions";
 import { readdirSync } from "fs";
 import { resolve } from "path";
+import { Qwik } from ".";
 
 class QwikEvent {
   public constructor(options: QwikEventOptions) {
     this.init(options.client, options.path);
   }
 
-  private init(client: Client, path: any) {
+  private init(client: Qwik, path: any) {
     const start = Date.now();
 
     const folders = readdirSync(path);

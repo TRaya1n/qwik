@@ -4,6 +4,8 @@ import {
   Message,
   PermissionsBitField,
   SlashCommandBuilder,
+  chatInputApplicationCommandMention,
+  messageLink,
 } from "discord.js";
 import { Qwik } from "../../Qwik";
 
@@ -36,7 +38,9 @@ export const SlashCommand = {
   },
 };
 
-async function deleteMessagesSafely(interaction: ChatInputCommandInteraction) {
+async function deleteMessagesSafely(
+  interaction: ChatInputCommandInteraction | Message,
+) {
   const { client } = interaction;
   try {
     const messages = await interaction.channel?.messages
@@ -55,7 +59,11 @@ async function deleteMessagesSafely(interaction: ChatInputCommandInteraction) {
         if (message.deletable) {
           message.delete().catch((error) => {
             if (error.rawError.message === "Unknown Message") {
-              interaction.editReply(`Error: ${error.rawError.message}`);
+              if (interaction instanceof ChatInputCommandInteraction) {
+                interaction.editReply(`Error: ${error.rawError.message}`);
+              } else {
+                interaction.reply(`Error: ${error.rawError.message}`);
+              }
             }
           });
         }
@@ -63,7 +71,34 @@ async function deleteMessagesSafely(interaction: ChatInputCommandInteraction) {
   } catch (error) {
     console.debug(error, "catch");
     if (error.rawError.message === "Unknown Message") {
-      interaction.editReply(`Error: ${error.rawError.message}`);
+      if (interaction instanceof ChatInputCommandInteraction) {
+        interaction.editReply(`Error: ${error.rawError.message}`);
+      } else {
+        interaction.reply(`Error: ${error.rawError.message}`);
+      }
     }
   }
 }
+
+export const MessageCommand = {
+  name: "clear",
+  aliases: [],
+  description: "Purge messages sent by the bot",
+  category: "moderation",
+  execute: async (client: Qwik, message: Message, args: any[]) => {
+    await deleteMessagesSafely(message);
+
+    const embed = new EmbedBuilder()
+      .setAuthor({
+        name: message.author.username,
+        iconURL: message.author.displayAvatarURL(),
+      })
+      .setDescription(`**Cleared 20 messages sent by me**`)
+      .setColor("Orange")
+      .setTimestamp();
+
+    setTimeout(() => {
+      message.channel.send({ embeds: [embed] });
+    }, 2000);
+  },
+};

@@ -79,7 +79,9 @@ export const MessageCommand = {
               "bot",
             )}) - General bot commands**\n> **[Information](${link(
               "information",
-            )}) - Information commands**`,
+            )}) - Information commands**\n> **[Moderation](${link(
+              "moderation",
+            )}) - Moderation commands**`,
           )
           .setColor("Greyple")
           .setTimestamp();
@@ -162,7 +164,7 @@ function searchCategory(client: Qwik, category: String) {
       return commands.category === category;
     })
     .map((element: any) => {
-      `${codeBlock(
+      return `${codeBlock(
         "js",
         `${element.name}: {\n Aliases: [${
           element.aliases ? element.aliases.join(", ") : null
@@ -172,8 +174,7 @@ function searchCategory(client: Qwik, category: String) {
       )}`;
     })
     .join("\n");
-    // prevent errors(;):
-  return r ? r : "No commands found in the 'Moderation' category";
+  return r ? r : `No comands found in the ${category} category.`;
 }
 
 function link(path: string) {

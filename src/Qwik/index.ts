@@ -44,7 +44,10 @@ class Qwik extends Client {
     return { cmdhandler };
   }
 
-  public initQwikMongoose(uri?: string | undefined, Options?: mongoose.MongooseOptions) {
+  public initQwikMongoose(
+    uri?: string | undefined,
+    Options?: mongoose.MongooseOptions,
+  ) {
     return new QwikMongoose(uri, Options);
   }
 

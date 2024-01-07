@@ -1,5 +1,4 @@
 import {
-  ChatInputCommandInteraction,
   EmbedBuilder,
   REST,
   Routes,

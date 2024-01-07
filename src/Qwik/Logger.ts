@@ -9,9 +9,9 @@ class QwikLogger {
   }
 
   public log(...str: any) {
-    process.stdout.write(
-      chalk.bold.bgGray(`[LOG]`) + " " + chalk.green(str) + "\n",
-    );
+    process.stdout.write(chalk.bold.bgGray(`[LOG]`) + " ");
+    process.stdout.write(chalk.green(str));
+    process.stdout.write(" " + "\n");
   }
 
   public warn(...str: any) {
