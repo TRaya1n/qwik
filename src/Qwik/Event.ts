@@ -2,6 +2,7 @@ import { QwikEventOptions } from "./interfaces/QwikEventOptions";
 import { readdirSync } from "fs";
 import { resolve } from "path";
 import { Qwik } from ".";
+import { logger } from "../Utils/pino-logger";
 
 class QwikEvent {
   public constructor(options: QwikEventOptions) {
@@ -21,12 +22,14 @@ class QwikEvent {
             f.Event(...args, start),
           );
         } else {
-          client.on(file.replace(".ts", ""), (...args) => f.Event(...args));
+          client.on(file.replace(".ts", ""), (...args) =>
+            f.Event(...args, client),
+          );
         }
       }
     }
 
-    console.log(`Loaded event files! (in ${Date.now() - start}ms)`);
+    logger.info(`Loaded event files! (in ${Date.now() - start}ms)`);
   }
 }
 

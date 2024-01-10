@@ -1,12 +1,18 @@
 import {
+  CommandInteractionOptionResolver,
+  Embed,
   EmbedBuilder,
   REST,
   Routes,
 } from "discord.js";
-import { QwikCommandOptions } from "./interfaces/QwikCommandOptions";
+import {
+  CommandProperties,
+  QwikCommandOptions,
+} from "./interfaces/QwikCommandOptions";
 import { readdirSync } from "fs";
 import { resolve } from "path";
 import { Qwik } from ".";
+import { logger } from "../Utils/pino-logger";
 
 class QwikCommand {
   public constructor(options: QwikCommandOptions) {
@@ -33,7 +39,7 @@ class QwikCommand {
       }
     }
 
-    console.log(`Loaded command files! (in ${Date.now() - start}ms)`);
+    logger.info(`Loaded command files! (in ${Date.now() - start}ms)`);
     this.DeploySlashCommands(client.commandsArray);
   }
 
@@ -42,9 +48,7 @@ class QwikCommand {
       client.commands.set(object.data.name, object);
       client.commandsArray.push(object.data.toJSON());
     } else {
-      console.error(
-        `[COMMAND_ERROR.SLASHCOMMAND]-${file}: Missing data / execute properties.`,
-      );
+      logger.warn(`${file}: Missing data / execute properties.`);
     }
   }
 
@@ -58,9 +62,7 @@ class QwikCommand {
         });
       }
     } else {
-      console.error(
-        `[COMMAND_ERROR.MESSAGECOMMAND]-${file}: Missing name / execute properties.`,
-      );
+      logger.warn(`${file}: Missing name / execute properties.`);
     }
   }
 
@@ -77,15 +79,12 @@ class QwikCommand {
   private interactionCreate(client: Qwik) {
     client.on("interactionCreate", (interaction) => {
       if (!interaction.isChatInputCommand()) return;
-      console.log(
-        `[INTERACTION_COMMAND] Executing ${interaction.commandName} command...`,
-      );
 
       const command: any = client.commands.get(interaction.commandName);
 
       if (!command) {
-        console.warn(
-          `[INTERACTION_COMMAND] ${interaction.commandName} command not found.`,
+        logger.warn(
+          `[INTERACTION_COMMAND] /${interaction.commandName} command not found.`,
         );
         const embed = new EmbedBuilder()
           .setAuthor({
@@ -101,12 +100,8 @@ class QwikCommand {
 
       try {
         command.execute(client, interaction);
-        console.log(
-          `[INTERACTION_COMMAND] Executed ${interaction.commandName}.`,
-        );
       } catch (error) {
-        console.error(`[INTERACTION_COMMAND] Error:`);
-        console.error(error);
+        logger.error(error, `QwikCommandError_InteractionCreate`);
       }
     });
   }
@@ -124,19 +119,84 @@ class QwikCommand {
         .split(/ +/g);
       const input = args.shift()?.toLowerCase();
 
-      let command = client.messageCommands.get(`${input}`);
+      let command: CommandProperties = client.messageCommands.get(`${input}`);
       if (!command) command = client.aliases.get(`${input}`);
 
       if (!command) {
-        console.warn(`[MESSAGE_COMMAND] ${message.content} not found.`);
+        logger.warn(`[MESSAGE_COMMAND] qw.${message.content} not found.`);
         return;
+      }
+
+      if (command.filters) {
+        if (
+          command.filters.guild &&
+          command.filters.guild.ids instanceof Array
+        ) {
+          if (!command.filters.guild.ids.includes(message.guildId)) {
+            if (command.filters.guild.reply) {
+              const embed = new EmbedBuilder()
+                .setDescription(`**You can't use this command in this guild**`)
+                .setColor("Greyple")
+                .setTimestamp();
+              message.reply({ embeds: [embed] });
+              return;
+            }
+          }
+        } else if (
+          command.filters.developerOnly &&
+          command.filters.developerOnly === true
+        ) {
+          const developers = ["1188538997786546287"];
+          if (!developers.includes(message.author.id)) {
+            return;
+          }
+        }
+      }
+
+      if (command.permissions) {
+        if (command.permissions.user) {
+          if (!message.member?.permissions.has(command.permissions.user)) {
+            const embed = new EmbedBuilder()
+              .setAuthor({
+                name: message.author.username,
+                iconURL: message.author.displayAvatarURL(),
+              })
+              .setDescription(
+                `**You don't have the required permission(s) to execute this command!**\n\n${command.permissions.user.join(
+                  ", ",
+                )}`,
+              )
+              .setColor("Orange")
+              .setTimestamp();
+            message.reply({ embeds: [embed] });
+            return;
+          }
+        }
+
+        if (command.permissions.client) {
+          if (!message.member?.permissions.has(command.permissions.client)) {
+            const embed = new EmbedBuilder()
+              .setAuthor({
+                name: message.author.username,
+                iconURL: message.author.displayAvatarURL(),
+              })
+              .setDescription(
+                `**I don't have the required permission(s) to execute this command!**\n\n${command.permissions.client.join(
+                  ", ",
+                )}`,
+              )
+              .setColor("Orange")
+              .setTimestamp();
+            message.reply({ embeds: [embed] });
+            return;
+          }
+        }
       }
 
       try {
         command.execute(client, message, args);
       } catch (error) {
-        console.error(`[MESSAGE_COMMAND] Error:`);
-        console.error(error);
+        logger.error(error, `QwikCommandError_MessageCommand`);
       }
     });
   }

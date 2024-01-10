@@ -8,6 +8,7 @@ import {
   messageLink,
 } from "discord.js";
 import { Qwik } from "../../Qwik";
+import { CommandProperties } from "../../Qwik/interfaces/QwikCommandOptions";
 
 export const SlashCommand = {
   data: new SlashCommandBuilder()
@@ -80,11 +81,15 @@ async function deleteMessagesSafely(
   }
 }
 
-export const MessageCommand = {
+export const MessageCommand: CommandProperties = {
   name: "clear",
   aliases: [],
   description: "Purge messages sent by the bot",
   category: "moderation",
+  permissions: {
+    user: ["ManageMessages"],
+    client: ["ManageMessages"],
+  },
   execute: async (client: Qwik, message: Message, args: any[]) => {
     await deleteMessagesSafely(message);
 

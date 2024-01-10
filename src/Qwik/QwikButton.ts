@@ -3,6 +3,7 @@ import { Qwik } from ".";
 import { QwikButtonOptions } from "./interfaces/QwikButtonOptions";
 import { readdirSync } from "fs";
 import { resolve } from "path";
+import { logger } from "../Utils/pino-logger";
 
 class QwikButton {
   public constructor(options: QwikButtonOptions) {
@@ -19,8 +20,7 @@ class QwikButton {
         const file = require(resolve(path, customId[0], customId[1]));
         file.Buttons(interaction, client, customId);
       } catch (error) {
-        console.error("[BUTTON] Error:");
-        console.debug(error);
+        logger.error(error, 'QwikButtonError');
       }
     });
   }

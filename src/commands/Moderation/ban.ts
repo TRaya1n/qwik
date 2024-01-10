@@ -3,14 +3,12 @@ import {
   PermissionFlagsBits,
   SlashCommandBuilder,
   EmbedBuilder,
-  InviteGuild,
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
   ComponentType,
 } from "discord.js";
 import { Qwik } from "../../Qwik";
-import { Buttons } from "../Information/help";
 
 export const SlashCommand = {
   data: new SlashCommandBuilder()

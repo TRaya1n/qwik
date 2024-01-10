@@ -7,8 +7,14 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ComponentType,
+  Message,
+  PermissionFlagsBits,
+  Embed,
 } from "discord.js";
 import { Qwik } from "../../Qwik";
+import { Buttons } from "../Bot/ping";
+import { CommandProperties } from "../../Qwik/interfaces/QwikCommandOptions";
+import { getCommandProperties } from "../../Utils/CommandUtils";
 
 export const SlashCommand = {
   data: new SlashCommandBuilder()
@@ -125,6 +131,136 @@ export const SlashCommand = {
           interaction.editReply({ embeds: [embed], components: [] });
           i.editReply("Canceled.");
           return collector.stop();
+        }
+      });
+    }
+  },
+};
+
+export const MessageCommand: CommandProperties = {
+  name: "kick",
+  aliases: [],
+  category: "moderation",
+  description: "Kick a member in a guild",
+  permissions: {
+    user: ["KickMembers"],
+    client: ["KickMembers"],
+  },
+  execute: async (client: Qwik, message: Message, args: any[]) => {
+    const user = message.mentions.users.first() || args[0];
+    const reason = args.splice(1).join(" ");
+
+    if (!user) {
+      const embed: any = getCommandProperties(client, "kick", {
+        embed: true,
+        member: message.member,
+      });
+      return message.reply({ embeds: [embed] });
+    }
+
+    const member = message.guild?.members.cache.get(`${user?.id}`);
+
+    if (member && member.id) {
+      if (member.id === message.guild?.ownerId) {
+        const embed = new EmbedBuilder()
+          .setAuthor({
+            name: message.author.username,
+            iconURL: message.author.displayAvatarURL(),
+          })
+          .setDescription(`:x: | **You can't kick the guild owner**`)
+          .setColor("Orange")
+          .setTimestamp();
+        return message.reply({ embeds: [embed] });
+      }
+
+      if (!member.kickable) {
+        const embed = new EmbedBuilder()
+          .setAuthor({
+            name: message.author.username,
+            iconURL: message.author.displayAvatarURL(),
+          })
+          .setDescription(`:x: | **This member is not kick-able**`)
+          .setColor("Orange")
+          .setTimestamp();
+        return message.reply({ embeds: [embed] });
+      }
+
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        new ButtonBuilder()
+          .setCustomId("collector-kick:yes")
+          .setStyle(ButtonStyle.Success)
+          .setLabel("Yes"),
+        new ButtonBuilder()
+          .setCustomId("collector-kick:no")
+          .setLabel("No")
+          .setStyle(ButtonStyle.Danger),
+      );
+
+      const embed = new EmbedBuilder()
+        .setAuthor({
+          name: message.author.username,
+          iconURL: message.author.displayAvatarURL(),
+        })
+        .setDescription(`Are you sure you want to kick this member?`)
+        .setColor("Orange")
+        .setTimestamp();
+
+      const msg = await message.channel.send({
+        embeds: [embed],
+        content: `${message.author}`,
+        components: [row],
+      });
+
+      const collector = msg.channel.createMessageComponentCollector({
+        componentType: ComponentType.Button,
+        filter: (i) => i.user.id === message.author.id,
+      });
+
+      collector.on("collect", async (interaction) => {
+        if (interaction.customId === "collector-kick:yes") {
+          try {
+            const embed = new EmbedBuilder()
+              .setAuthor({
+                name: message.author.username,
+                iconURL: message.author.displayAvatarURL(),
+              })
+              .setDescription(`✅ | **Kicked ${member}**`)
+              .setColor("Greyple")
+              .setTimestamp();
+            await member.kick(reason ? reason : "No reason provided [Qwik]");
+            msg.edit({ embeds: [embed], components: [] });
+            interaction.reply({
+              content: `✅ | **Kicking member...**`,
+              ephemeral: true,
+            });
+            return collector.stop();
+          } catch (error) {
+            console.debug(error);
+          }
+        } else if (interaction.customId === "collector-kick:no") {
+          const embed = new EmbedBuilder()
+            .setAuthor({
+              name: message.author.username,
+              iconURL: message.author.displayAvatarURL(),
+            })
+            .setDescription(`✅ | **Canceled kick**`)
+            .setColor("Orange")
+            .setTimestamp();
+          msg.edit({ embeds: [embed], components: [] });
+          interaction.reply({
+            content: `✅ | **Canceled kicking this member**`,
+            ephemeral: true,
+          });
+          return collector.stop();
+        }
+      });
+
+      collector.on("end", (collected, reason) => {
+        if (reason === "time" && msg.editable) {
+          msg.edit({
+            embeds: [embed],
+            components: [row],
+          });
         }
       });
     }

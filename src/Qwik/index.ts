@@ -1,5 +1,4 @@
 import {
-  ApplicationCommandData,
   ApplicationCommandResolvable,
   Client,
   ClientOptions,
@@ -10,8 +9,6 @@ import { QwikEvent } from "./Event";
 import { QwikCommandOptions } from "./interfaces/QwikCommandOptions";
 import { QwikCommand } from "./Command";
 import moment from "moment";
-import { QwikLogger } from "./Logger";
-import { QwikButtonOptions } from "./interfaces/QwikButtonOptions";
 import { QwikButton } from "./QwikButton";
 import mongoose from "mongoose";
 import { QwikMongoose } from "./QwikMongoose";
@@ -49,10 +46,6 @@ class Qwik extends Client {
     Options?: mongoose.MongooseOptions,
   ) {
     return new QwikMongoose(uri, Options);
-  }
-
-  public initQwikLogger() {
-    return new QwikLogger();
   }
 
   /**

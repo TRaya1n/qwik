@@ -9,8 +9,9 @@ import {
   codeBlock,
 } from "discord.js";
 import { Qwik } from "../../Qwik";
+import { CommandProperties } from "../../Qwik/interfaces/QwikCommandOptions";
 
-export const MessageCommand = {
+export const MessageCommand: CommandProperties = {
   name: "help",
   aliases: [],
   category: "information",
