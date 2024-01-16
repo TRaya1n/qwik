@@ -1,6 +1,4 @@
 import {
-  CommandInteractionOptionResolver,
-  Embed,
   EmbedBuilder,
   REST,
   Routes,
@@ -113,7 +111,7 @@ class QwikCommand {
 
         try {
           command.execute(client, interaction).then(async () => {
-            await models.client.findOneAndUpdate(
+            await models.Client.findOneAndUpdate(
               { pass: client.user?.id },
               { $inc: { chatInputCommandsRanAllTime: 1 } },
             );
@@ -135,7 +133,7 @@ class QwikCommand {
 
         try {
           command.execute(client, interaction).then(async () => {
-            await models.client.findOneAndUpdate(
+            await models.Client.findOneAndUpdate(
               { pass: client.user?.id },
               { $inc: { userContextMenuRanAllTime: 1 } },
             );
@@ -236,7 +234,7 @@ class QwikCommand {
 
       try {
         command.execute(client, message, args).then(async () => {
-          await models.client.findOneAndUpdate(
+          await models.Client.findOneAndUpdate(
             { pass: client.user?.id },
             { $inc: { messageCommandsRanAllTime: 1 } },
             { upsert: true },
