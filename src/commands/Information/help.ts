@@ -41,7 +41,7 @@ export const MessageCommand: CommandProperties = {
           iconURL: message.author.displayAvatarURL(),
         })
         .setDescription(
-          `**Click [here](https://docs.qwik.gg/commands/?t=m&i=000&source=help_command_${message.author.id}_${message.guildId}) for additional help with commands!**`,
+          `**Click [here](https://docs.qwik.gg/commands/?utm_source=help_command&show=allwithdescriptionandcat) for additional help with commands!**`,
         )
         .setColor("Greyple")
         .setTimestamp();

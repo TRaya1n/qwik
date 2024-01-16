@@ -13,6 +13,7 @@ import { readdirSync } from "fs";
 import { resolve } from "path";
 import { Qwik } from ".";
 import { logger } from "../Utils/pino-logger";
+import { models } from "../models";
 
 class QwikCommand {
   public constructor(options: QwikCommandOptions) {
@@ -33,6 +34,10 @@ class QwikCommand {
           this.SlashCommandHandler(f.SlashCommand, file, client);
         }
 
+        if (f.ContextMenu) {
+          this.ContextMenuHandler(f.ContextMenu, file, client);
+        }
+
         if (f.MessageCommand) {
           this.MessageCommandHandler(f.MessageCommand, file, client);
         }
@@ -41,6 +46,15 @@ class QwikCommand {
 
     logger.info(`Loaded command files! (in ${Date.now() - start}ms)`);
     this.DeploySlashCommands(client.commandsArray);
+  }
+
+  private ContextMenuHandler(object: any, file: any, client: Qwik) {
+    if (object.data && object.execute) {
+      client.contextMenuCommands.set(object.data.name, object);
+      client.commandsArray.push(object.data.toJSON());
+    } else {
+      logger.warn(`${file}: Missing data / execute properties.`);
+    }
   }
 
   private SlashCommandHandler(object: any, file: any, client: Qwik) {
@@ -78,30 +92,57 @@ class QwikCommand {
 
   private interactionCreate(client: Qwik) {
     client.on("interactionCreate", (interaction) => {
-      if (!interaction.isChatInputCommand()) return;
+      if (interaction.isChatInputCommand()) {
+        const command: any = client.commands.get(interaction.commandName);
 
-      const command: any = client.commands.get(interaction.commandName);
+        if (!command) {
+          logger.warn(
+            `[INTERACTION_COMMAND] /${interaction.commandName} command not found.`,
+          );
+          const embed = new EmbedBuilder()
+            .setAuthor({
+              name: interaction.user?.username.toString(),
+              iconURL: interaction.user?.displayAvatarURL(),
+            })
+            .setDescription(`${interaction.commandName} command not found.`)
+            .setColor("Orange")
+            .setTimestamp();
+          interaction.reply({ embeds: [embed] });
+          return;
+        }
 
-      if (!command) {
-        logger.warn(
-          `[INTERACTION_COMMAND] /${interaction.commandName} command not found.`,
+        try {
+          command.execute(client, interaction).then(async () => {
+            await models.client.findOneAndUpdate(
+              { pass: client.user?.id },
+              { $inc: { chatInputCommandsRanAllTime: 1 } },
+            );
+          });
+        } catch (error) {
+          logger.error(error, `QwikCommandError_InteractionCreate`);
+        }
+      } else if (interaction.isContextMenuCommand()) {
+        logger.debug(interaction);
+        const command: any = client.contextMenuCommands.get(
+          interaction.commandName,
         );
-        const embed = new EmbedBuilder()
-          .setAuthor({
-            name: interaction.user?.username.toString(),
-            iconURL: interaction.user?.displayAvatarURL(),
-          })
-          .setDescription(`${interaction.commandName} command not found.`)
-          .setColor("Orange")
-          .setTimestamp();
-        interaction.reply({ embeds: [embed] });
-        return;
-      }
 
-      try {
-        command.execute(client, interaction);
-      } catch (error) {
-        logger.error(error, `QwikCommandError_InteractionCreate`);
+        logger.debug(command);
+
+        if (!command) {
+          return console.log(`${interaction.commandName}: Unknown command.`);
+        }
+
+        try {
+          command.execute(client, interaction).then(async () => {
+            await models.client.findOneAndUpdate(
+              { pass: client.user?.id },
+              { $inc: { userContextMenuRanAllTime: 1 } },
+            );
+          });
+        } catch (error) {
+          logger.error(error, "ContextMenuError");
+        }
       }
     });
   }
@@ -123,7 +164,7 @@ class QwikCommand {
       if (!command) command = client.aliases.get(`${input}`);
 
       if (!command) {
-        logger.warn(`[MESSAGE_COMMAND] qw.${message.content} not found.`);
+        logger.warn(`[MESSAGE_COMMAND] ${message.content} not found.`);
         return;
       }
 
@@ -146,7 +187,7 @@ class QwikCommand {
           command.filters.developerOnly &&
           command.filters.developerOnly === true
         ) {
-          const developers = ["1188538997786546287"];
+          const developers = ["1125852865534107678"];
           if (!developers.includes(message.author.id)) {
             return;
           }
@@ -194,7 +235,13 @@ class QwikCommand {
       }
 
       try {
-        command.execute(client, message, args);
+        command.execute(client, message, args).then(async () => {
+          await models.client.findOneAndUpdate(
+            { pass: client.user?.id },
+            { $inc: { messageCommandsRanAllTime: 1 } },
+            { upsert: true },
+          );
+        });
       } catch (error) {
         logger.error(error, `QwikCommandError_MessageCommand`);
       }

@@ -1,10 +1,10 @@
-import { AnyThreadChannel, EmbedBuilder, GuildMember } from "discord.js";
+import { AnyThreadChannel, EmbedBuilder, GuildMember, User } from "discord.js";
 import { Qwik } from "../Qwik";
 import { CommandProperties } from "../Qwik/interfaces/QwikCommandOptions";
 
 interface getCommandPropertiesOptions {
   embed?: boolean | false;
-  member?: GuildMember | null;
+  member?: GuildMember | User | null;
 }
 
 /**
@@ -22,44 +22,48 @@ export function getCommandProperties(
     .filter((value) => value.name === commandName)
     .map((c) => c);
 
-  console.debug(command, command[0].name);
-
   if (command) {
+    const embed = new EmbedBuilder();
     if (embed && member instanceof GuildMember) {
-      const embed = new EmbedBuilder()
-        .setAuthor({
-          name: member.user.username,
-          iconURL: member.displayAvatarURL(),
-        })
-        .setDescription(`**> ${command[0].name}**`)
-        .addFields(
-          {
-            name: "Description",
-            value: `> **${
-              command[0].description
-                ? command[0].description
-                : "No descriprion was given for this command"
-            }**`,
-          },
-          {
-            name: "Usage",
-            value: `> **${
-              command[0].usage
-                ? command[0].usage
-                : "No usage was given for this command"
-            }**`,
-          },
-        )
-        .setColor("Greyple")
-        .setTimestamp();
-      return embed;
+      embed.setAuthor({
+        name: member.user.username,
+        iconURL: member.displayAvatarURL(),
+      });
+    } else if (member instanceof User) {
+      embed.setAuthor({
+        name: member.username,
+        iconURL: member.displayAvatarURL(),
+      });
     }
+    embed
+      .setDescription(`**> ${command[0].name}**`)
+      .addFields(
+        {
+          name: "Description",
+          value: `> **${
+            command[0].description
+              ? command[0].description
+              : "No descriprion was given for this command"
+          }**`,
+        },
+        {
+          name: "Usage",
+          value: `> **${
+            command[0].usage
+              ? command[0].usage
+              : "No usage was given for this command"
+          }**`,
+        },
+      )
+      .setColor("Greyple")
+      .setTimestamp();
+    return embed;
+  }
 
-    if (!embed) {
-      return {
-        name: command[0].name,
-        command,
-      };
-    }
+  if (!embed) {
+    return {
+      name: command[0].name,
+      command,
+    };
   }
 }

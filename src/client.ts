@@ -10,14 +10,8 @@ const client = new Qwik({
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.GuildMessageReactions,
   ],
-  partials: [
-    Partials.Message,
-    Partials.GuildMember,
-    Partials.Channel,
-    Partials.Reaction,
-  ],
+  partials: [Partials.Message, Partials.GuildMember, Partials.Channel],
   allowedMentions: { repliedUser: false },
 });
 
@@ -25,8 +19,8 @@ process.on("uncaughtException", (error) => {
   logger.error(error);
 });
 
-process.on("unhandledRejection", async (reason, promise) => {
-  logger.warn(promise + " " + reason);
+process.on("unhandledRejection", async (err) => {
+  logger.warn(err);
 });
 
 process.on("warning", (warning) => {
@@ -43,3 +37,9 @@ client.initQwikCommand(
   true,
   "./src/commands/",
 );
+(async () => {
+  const mongoose = await client.initQwikMongoose();
+  mongoose.connection.on("connected", () => {
+    logger.info(`MongoDB connection successfull!`);
+  });
+})();

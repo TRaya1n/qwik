@@ -20,6 +20,10 @@ class Qwik extends Client {
   }
 
   public commands = new Collection<string, ApplicationCommandResolvable>();
+  public contextMenuCommands = new Collection<
+    string,
+    ApplicationCommandResolvable
+  >();
   public messageCommands = new Collection<string, any>();
   public aliases = new Collection<string, any>();
   public commandsArray: any = [];
@@ -41,11 +45,11 @@ class Qwik extends Client {
     return { cmdhandler };
   }
 
-  public initQwikMongoose(
+  public async initQwikMongoose(
     uri?: string | undefined,
     Options?: mongoose.MongooseOptions,
   ) {
-    return new QwikMongoose(uri, Options);
+    return new QwikMongoose().init(uri, Options);
   }
 
   /**

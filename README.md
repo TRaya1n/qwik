@@ -1,6 +1,7 @@
 # Qwik
 
 ## Version 1.2.8:
+
 ```
 
 Packages:
@@ -8,7 +9,7 @@ Packages:
     > + pino-pretty
     > - chalk
 
-Files: 
+Files:
     > + .prettierignore
     > + pino-logger.ts
     > + CommandUtils.ts
@@ -28,8 +29,8 @@ Files:
     > / QwikButton.ts
     > / QwikCommandOptions.ts
 
-New Features: 
+New Features:
     > None
-    > None 
+    > None
     > None
 ```

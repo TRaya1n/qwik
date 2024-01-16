@@ -1,4 +1,4 @@
-import { PermissionsString, Snowflake } from "discord.js";
+import { PermissionsString, SlashCommandBuilder, Snowflake } from "discord.js";
 import { Qwik } from "..";
 
 export interface QwikCommandOptions {
@@ -9,20 +9,25 @@ export interface QwikCommandOptions {
   };
 }
 
+export interface SlashCommandProperties {
+  data: SlashCommandBuilder;
+  execute: (...args: any) => any;
+}
+
 // Message command properties
 export interface CommandProperties {
   name: string;
-  aliases?: [];
+  aliases?: any[];
   category: string;
   description?: string;
   usage?: string;
   permissions?: {
-    user?: [PermissionsString];
-    client?: [PermissionsString];
+    user?: PermissionsString[];
+    client?: PermissionsString[];
   };
   filters?: {
     developerOnly?: boolean;
-    guild: {
+    guild?: {
       ids: any[Snowflake];
       reply: boolean;
     };
