@@ -1,69 +1,56 @@
-import { AnyThreadChannel, EmbedBuilder, GuildMember, User } from "discord.js";
+import { GuildMember, User, EmbedBuilder } from "discord.js";
 import { Qwik } from "../Qwik";
-import { CommandProperties } from "../Qwik/interfaces/QwikCommandOptions";
 
-interface getCommandPropertiesOptions {
-  embed?: boolean | false;
-  member?: GuildMember | User | null;
+export function getCommand(param: getCommandOptions) {
+  const command = param.client.messageCommands
+    .filter((value) => value.name === param.name)
+    .map((command) => command);
+
+  const embed = new EmbedBuilder()
+    .setColor("Blurple")
+    .setTimestamp()
+    .setDescription(`**${param.options.message}**`);
+
+  if (command[0].description) {
+    embed.addFields({
+      name: "**Description:**",
+      value: `\`-\` ${command[0].description}`,
+    });
+  }
+
+  if (command[0].usage) {
+    embed.addFields({
+      name: "**Usage:**",
+      value: `\`-\` ${command[0].usage}`,
+    });
+  }
+
+  if (param.options.target instanceof GuildMember) {
+    embed.setAuthor({
+      name: param.options.target.user.username,
+      iconURL: param.options.target.user.displayAvatarURL(),
+    });
+  } else if (param.options.target instanceof User) {
+    embed.setAuthor({
+      name: param.options.target.username,
+      iconURL: param.options.target.displayAvatarURL(),
+    });
+  } else {
+    embed.setAuthor({
+      name: param.client.user?.username ? param.client.user.username : "Qwik",
+      iconURL: param.client.user?.displayAvatarURL(),
+    });
+  }
+
+  return embed;
 }
 
-/**
- *
- * @param client {Qwik}
- * @param commandName {String}
- * @param Options {getCommandPropertiesOptions}
- */
-export function getCommandProperties(
-  client: Qwik,
-  commandName: string,
-  { embed, member }: getCommandPropertiesOptions,
-) {
-  const command: any = client.messageCommands
-    .filter((value) => value.name === commandName)
-    .map((c) => c);
-
-  if (command) {
-    const embed = new EmbedBuilder();
-    if (embed && member instanceof GuildMember) {
-      embed.setAuthor({
-        name: member.user.username,
-        iconURL: member.displayAvatarURL(),
-      });
-    } else if (member instanceof User) {
-      embed.setAuthor({
-        name: member.username,
-        iconURL: member.displayAvatarURL(),
-      });
-    }
-    embed
-      .setDescription(`**> ${command[0].name}**`)
-      .addFields(
-        {
-          name: "Description",
-          value: `> **${
-            command[0].description
-              ? command[0].description
-              : "No descriprion was given for this command"
-          }**`,
-        },
-        {
-          name: "Usage",
-          value: `> **${
-            command[0].usage
-              ? command[0].usage
-              : "No usage was given for this command"
-          }**`,
-        },
-      )
-      .setColor("Greyple")
-      .setTimestamp();
-    return embed;
-  }
-
-  if (!embed) {
-    return {
-      name: command[0].name,
-      command,
-    };
-  }
+interface getCommandOptions {
+  name: String;
+  client: Qwik;
+  options: {
+    embed: Boolean;
+    target: GuildMember | User | null;
+    message: String;
+  };
 }

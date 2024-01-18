@@ -4,14 +4,11 @@ import {
   ButtonInteraction,
   ButtonStyle,
   EmbedBuilder,
-  Guild,
-  InviteGuild,
   Message,
 } from "discord.js";
 import { CommandProperties } from "../../Qwik/interfaces/QwikCommandOptions";
 import { Qwik } from "../../Qwik";
 import { GuildSchema } from "../../models/Schema/Guild";
-import { getCommandProperties } from "../../Utils/CommandUtils";
 import { logger } from "../../Utils/pino-logger";
 
 export const MessageCommand: CommandProperties = {
@@ -19,7 +16,7 @@ export const MessageCommand: CommandProperties = {
   aliases: [],
   category: "admin",
   description: "Configure guild anti filters!",
-  usage: "qw.anti ...options",
+  usage: "qw.anti",
   permissions: {
     user: ["ManageGuild"],
     client: ["ViewChannel", "ManageMessages"],
@@ -47,11 +44,16 @@ export const MessageCommand: CommandProperties = {
 
     if (!["invite"].includes(type)) {
       const embed = new EmbedBuilder()
-      .setAuthor({ name: message.author.username, iconURL: message.author.displayAvatarURL() })
-      .setDescription(`:x: | **Type argument is invalid, type argument has to be one of these:** \`invite\``)
-      .setColor('Orange')
-      .setTimestamp();
-     return message.channel.send({ embeds: [embed] });
+        .setAuthor({
+          name: message.author.username,
+          iconURL: message.author.displayAvatarURL(),
+        })
+        .setDescription(
+          `:x: | **Type argument is invalid, type argument has to be one of these:** \`invite\``,
+        )
+        .setColor("Orange")
+        .setTimestamp();
+      return message.channel.send({ embeds: [embed] });
     }
 
     if (!["on", "off"].includes(mode)) {
@@ -145,7 +147,7 @@ export async function Buttons(
         )
         .setColor("Orange")
         .setTimestamp();
-      interation.message.edit({ content: 'Action: KICK', components: [] });
+      interation.message.edit({ content: "Action: KICK", components: [] });
       return interation.editReply({ embeds: [embed] });
     } else if (customId[2] === "action_delete") {
       data.automod.actions = "DELETE";
@@ -160,13 +162,13 @@ export async function Buttons(
         )
         .setColor("Orange")
         .setTimestamp();
-      interation.message.edit({ content: 'Action: DELETE', components: [] });
+      interation.message.edit({ content: "Action: DELETE", components: [] });
       return interation.editReply({ embeds: [embed] });
     }
   } else {
     return interation.reply({
       content: `:x: | **You can't run this button**`,
-      ephemeral: true 
+      ephemeral: true,
     });
   }
 }

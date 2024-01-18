@@ -9,5 +9,10 @@ export const GuildSchema = model(
       actions: { type: String, default: "DELETE" },
       anti_invites: Boolean,
     },
+
+    modlogs: {
+      message_log: String,
+      channel_log: String,
+    },
   }),
 );

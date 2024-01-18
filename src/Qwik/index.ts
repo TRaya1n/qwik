@@ -4,19 +4,29 @@ import {
   ClientOptions,
   Collection,
 } from "discord.js";
-import { QwikEventOptions } from "./interfaces/QwikEventOptions";
 import { QwikEvent } from "./Event";
-import { QwikCommandOptions } from "./interfaces/QwikCommandOptions";
+import { CommandProperties } from "./interfaces/QwikCommandOptions";
 import { QwikCommand } from "./Command";
 import moment from "moment";
 import { QwikButton } from "./QwikButton";
-import mongoose from "mongoose";
-import { QwikMongoose } from "./QwikMongoose";
 
 class Qwik extends Client {
   constructor(options: ClientOptions) {
     super(options);
     this.login();
+    new QwikEvent({
+      client: this,
+      path: "./src/events/",
+    });
+    new QwikCommand({
+      client: this,
+      path: "./src/commands/",
+      message: { prefix: "qw." },
+    });
+    new QwikButton({
+      client: this,
+      path: "./src/commands/",
+    });
   }
 
   public commands = new Collection<string, ApplicationCommandResolvable>();
@@ -24,33 +34,9 @@ class Qwik extends Client {
     string,
     ApplicationCommandResolvable
   >();
-  public messageCommands = new Collection<string, any>();
-  public aliases = new Collection<string, any>();
+  public messageCommands = new Collection<string, CommandProperties>();
+  public aliases = new Collection<string, CommandProperties>();
   public commandsArray: any = [];
-
-  public initQwikEvent(QwikEventOptionsArgs: QwikEventOptions) {
-    return new QwikEvent(QwikEventOptionsArgs);
-  }
-
-  public initQwikCommand(
-    QwikCommandOptionsArgs: QwikCommandOptions,
-    button: boolean,
-    path: string,
-  ) {
-    const cmdhandler = new QwikCommand(QwikCommandOptionsArgs);
-    if (button) {
-      const btnhandler = new QwikButton({ client: this, path });
-      return { cmdhandler, btnhandler };
-    }
-    return { cmdhandler };
-  }
-
-  public async initQwikMongoose(
-    uri?: string | undefined,
-    Options?: mongoose.MongooseOptions,
-  ) {
-    return new QwikMongoose().init(uri, Options);
-  }
 
   /**
    *

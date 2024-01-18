@@ -9,7 +9,7 @@ import {
 import { Qwik } from "../../Qwik";
 import moment from "moment";
 import { CommandProperties } from "../../Qwik/interfaces/QwikCommandOptions";
-import { getCommandProperties } from "../../Utils/CommandUtils";
+import { getCommand } from "../../Utils/CommandUtils";
 
 export const MessageCommand: CommandProperties = {
   name: "userinfo",
@@ -21,9 +21,14 @@ export const MessageCommand: CommandProperties = {
     const user = message.mentions.users.first() || args[0];
 
     if (!user) {
-      const embed: any = getCommandProperties(client, "userinfo", {
-        embed: true,
-        member: user,
+      const embed = getCommand({
+        name: "userinfo",
+        client,
+        options: {
+          embed: true,
+          target: message.member,
+          message: "User argument is required",
+        },
       });
       return message.reply({ embeds: [embed] });
     }

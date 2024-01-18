@@ -1,7 +1,9 @@
 import { config } from "dotenv";
 import { GatewayIntentBits, Partials } from "discord.js";
 import { Qwik } from "./Qwik/index";
+import mongoose from "mongoose";
 import { logger } from "./Utils/pino-logger";
+import { sendErrorMessage } from "./Utils/helpers";
 config();
 
 const client = new Qwik({
@@ -17,29 +19,19 @@ const client = new Qwik({
 
 process.on("uncaughtException", (error) => {
   logger.error(error);
+  sendErrorMessage({ client, error });
 });
 
-process.on("unhandledRejection", async (err) => {
-  logger.warn(err);
+process.on("unhandledRejection", async (error) => {
+  logger.warn(error);
+  sendErrorMessage({ client, error });
 });
 
 process.on("warning", (warning) => {
   logger.warn(warning, "warning");
 });
 
-client.initQwikEvent({ client: client, path: "./src/events/" });
-client.initQwikCommand(
-  {
-    client: client,
-    path: "./src/commands/",
-    message: { prefix: "qw." },
-  },
-  true,
-  "./src/commands/",
-);
 (async () => {
-  const mongoose = await client.initQwikMongoose();
-  mongoose.connection.on("connected", () => {
-    logger.info(`MongoDB connection successfull!`);
-  });
+  mongoose.connect(`${process.env.MONGOOSE_URI}`);
+  logger.info(`MongoDB connection successful!`);
 })();

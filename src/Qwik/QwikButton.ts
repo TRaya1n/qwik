@@ -1,9 +1,11 @@
-import { ButtonInteraction } from "discord.js";
-import { Qwik } from ".";
-import { QwikButtonOptions } from "./interfaces/QwikButtonOptions";
-import { readdirSync } from "fs";
 import { resolve } from "path";
 import { logger } from "../Utils/pino-logger";
+import { Qwik } from ".";
+
+interface QwikButtonOptions {
+  client: Qwik;
+  path: string;
+}
 
 class QwikButton {
   public constructor(options: QwikButtonOptions) {

@@ -13,8 +13,6 @@ export const SlashCommand = {
   execute: async (client: Qwik, interaction: ChatInputCommandInteraction) => {
     await interaction.deferReply();
 
-    interaction.editReply({ content: `\`Loading data...\`` });
-
     const embed = new EmbedBuilder()
       .setAuthor({
         name: interaction.user?.username.toString(),
@@ -24,7 +22,7 @@ export const SlashCommand = {
       .setColor("Greyple")
       .setTimestamp();
 
-    return interaction.editReply({ content: null, embeds: [embed] });
+    return interaction.editReply({ embeds: [embed] });
   },
 };
 
@@ -33,8 +31,6 @@ export const MessageCommand = {
   category: "bot",
   description: `See how long the bot hass been up for!`,
   execute: async (client: Qwik, message: Message) => {
-    const msg = await message.channel.send({ content: `\`Loading data...\`` });
-
     const embed = new EmbedBuilder()
       .setAuthor({
         name: message.author.username.toString(),
@@ -44,6 +40,6 @@ export const MessageCommand = {
       .setColor("Greyple")
       .setTimestamp();
 
-    return msg.edit({ content: null, embeds: [embed] });
+    return message.channel.send({ embeds: [embed] });
   },
 };

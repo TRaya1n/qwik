@@ -1,17 +1,17 @@
-import {
-  EmbedBuilder,
-  REST,
-  Routes,
-} from "discord.js";
-import {
-  CommandProperties,
-  QwikCommandOptions,
-} from "./interfaces/QwikCommandOptions";
+import { EmbedBuilder, REST, Routes } from "discord.js";
 import { readdirSync } from "fs";
 import { resolve } from "path";
 import { Qwik } from ".";
 import { logger } from "../Utils/pino-logger";
 import { models } from "../models";
+
+interface QwikCommandOptions {
+  client: Qwik;
+  path: any;
+  message?: {
+    prefix: string;
+  };
+}
 
 class QwikCommand {
   public constructor(options: QwikCommandOptions) {
@@ -158,7 +158,7 @@ class QwikCommand {
         .split(/ +/g);
       const input = args.shift()?.toLowerCase();
 
-      let command: CommandProperties = client.messageCommands.get(`${input}`);
+      let command = client.messageCommands.get(`${input}`);
       if (!command) command = client.aliases.get(`${input}`);
 
       if (!command) {

@@ -17,8 +17,6 @@ export const SlashCommand = {
   execute: async (client: Qwik, interaction: ChatInputCommandInteraction) => {
     await interaction.deferReply();
 
-    interaction.editReply({ content: `\`Loading data...\`` });
-
     if (client.ws.ping === -1) {
       const embed = new EmbedBuilder()
         .setAuthor({
@@ -31,7 +29,7 @@ export const SlashCommand = {
         .setColor("Orange")
         .setTimestamp();
 
-      interaction.editReply({ content: null, embeds: [embed] });
+      interaction.editReply({ embeds: [embed] });
     }
 
     const embed = new EmbedBuilder()
@@ -43,22 +41,7 @@ export const SlashCommand = {
       .setColor("Greyple")
       .setTimestamp();
 
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setCustomId("Bot-ping.ts-show_more")
-        .setStyle(ButtonStyle.Primary)
-        .setEmoji("🛠️"),
-    );
-
-    if (interaction.user.id === "1125852865534107678") {
-      return interaction.editReply({
-        content: null,
-        embeds: [embed],
-        components: [row],
-      });
-    } else {
-      return interaction.editReply({ content: null, embeds: [embed] });
-    }
+    return interaction.editReply({ content: null, embeds: [embed] });
   },
 };
 
@@ -68,8 +51,6 @@ export const MessageCommand = {
   category: "bot",
   description: `Returns bot ping!`,
   execute: async (client: Qwik, message: Message) => {
-    const msg = await message.channel.send({ content: `\`Loading data...\`` });
-
     if (client.ws.ping === -1) {
       const embed = new EmbedBuilder()
         .setAuthor({
@@ -82,7 +63,7 @@ export const MessageCommand = {
         .setColor("Orange")
         .setTimestamp();
 
-      msg.edit({ content: null, embeds: [embed] });
+      message.channel.send({ embeds: [embed] });
     }
 
     const embed = new EmbedBuilder()
@@ -94,44 +75,6 @@ export const MessageCommand = {
       .setColor("Greyple")
       .setTimestamp();
 
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setCustomId("Bot-ping.ts-show_more")
-        .setStyle(ButtonStyle.Primary)
-        .setEmoji("🛠️"),
-    );
-
-    if (msg.author.id === "1125852865534107678") {
-      return msg.edit({ content: null, embeds: [embed], components: [row] });
-    } else {
-      return msg.edit({ content: null, embeds: [embed], components: [row] });
-    }
+    return message.channel.send({ embeds: [embed] });
   },
 };
-
-export async function Buttons(
-  interaction: ButtonInteraction,
-  client: Qwik,
-  customId: any[],
-) {
-  await interaction.deferReply({ ephemeral: true });
-
-  if (!interaction.user.id.includes("1125852865534107678")) {
-    return interaction.editReply({
-      content: `**You can't execute this button**`,
-    });
-  }
-
-  if (customId[2] === "show_more") {
-    const embed = new EmbedBuilder()
-      .setAuthor({
-        name: interaction.user.username,
-        iconURL: interaction.user.displayAvatarURL(),
-      })
-      .setDescription("**Developer informations**")
-      .setColor("Greyple")
-      .setTimestamp();
-
-    interaction.editReply({ embeds: [embed] });
-  }
-}

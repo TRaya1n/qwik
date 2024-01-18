@@ -12,9 +12,8 @@ import {
   Embed,
 } from "discord.js";
 import { Qwik } from "../../Qwik";
-import { Buttons } from "../Bot/ping";
 import { CommandProperties } from "../../Qwik/interfaces/QwikCommandOptions";
-import { getCommandProperties } from "../../Utils/CommandUtils";
+import { getCommand } from "../../Utils/CommandUtils";
 
 export const SlashCommand = {
   data: new SlashCommandBuilder()
@@ -151,9 +150,14 @@ export const MessageCommand: CommandProperties = {
     const reason = args.splice(1).join(" ");
 
     if (!user) {
-      const embed: any = getCommandProperties(client, "kick", {
-        embed: true,
-        member: message.member,
+      const embed = getCommand({
+        name: "kick",
+        client,
+        options: {
+          embed: true,
+          target: message.member,
+          message: "Argument user is missing",
+        },
       });
       return message.reply({ embeds: [embed] });
     }

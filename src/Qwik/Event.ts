@@ -1,8 +1,12 @@
-import { QwikEventOptions } from "./interfaces/QwikEventOptions";
 import { readdirSync } from "fs";
 import { resolve } from "path";
 import { Qwik } from ".";
 import { logger } from "../Utils/pino-logger";
+
+interface QwikEventOptions {
+  client: Qwik;
+  path: any;
+}
 
 class QwikEvent {
   public constructor(options: QwikEventOptions) {
