@@ -152,10 +152,7 @@ class QwikCommand {
       if (!message.guild) return;
       if (!message.content.startsWith(`${prefix}`)) return;
 
-      const args = message.content
-        .slice(prefix?.length)
-        .trim()
-        .split(/ +/g);
+      const args = message.content.slice(prefix?.length).trim().split(/ +/g);
       const input = args.shift()?.toLowerCase();
 
       let command = client.messageCommands.get(`${input}`);
