@@ -12,10 +12,14 @@ import {
   Embed,
 } from "discord.js";
 import { Qwik } from "../../Qwik";
-import { CommandProperties } from "../../Qwik/interfaces/QwikCommandOptions";
+import {
+  CommandProperties,
+  SlashCommandProperties,
+} from "../../Qwik/interfaces/QwikCommandOptions";
 import { getCommand } from "../../Utils/CommandUtils";
+import { errorEmbed } from "../../Utils/helpers";
 
-export const SlashCommand = {
+export const SlashCommand: SlashCommandProperties = {
   data: new SlashCommandBuilder()
     .setName("kick")
     .setDescription(`Kick a member of a guild`)
@@ -44,29 +48,23 @@ export const SlashCommand = {
 
     if (member && member.id) {
       if (member.id === interaction.guild?.ownerId) {
-        const embed = new EmbedBuilder()
-          .setAuthor({
-            name: interaction.user.username,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setDescription(`:x: | **You can't kick the guild owner**`)
-          .setColor("Orange")
-          .setTimestamp();
-        interaction.editReply({ embeds: [embed] });
-        return;
+        return interaction.editReply(
+          errorEmbed(client, {
+            name: "KickCommandError",
+            origin: "KickGuildOwner",
+            message: `:x: | **You cannot kick the server owner.**`,
+          }),
+        );
       }
 
       if (!member.kickable) {
-        const embed = new EmbedBuilder()
-          .setAuthor({
-            name: interaction.user.username,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setDescription(`:x: | **This member is not kick-able.**`)
-          .setColor("Orange")
-          .setTimestamp();
-        interaction.editReply({ embeds: [embed] });
-        return;
+        interaction.editReply(
+          errorEmbed(client, {
+            name: "KickCommandError",
+            origin: "KickMemberNotKickableByClient",
+            message: `:x: | **I cannot kick this member.**`,
+          }),
+        );
       }
 
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -166,27 +164,23 @@ export const MessageCommand: CommandProperties = {
 
     if (member && member.id) {
       if (member.id === message.guild?.ownerId) {
-        const embed = new EmbedBuilder()
-          .setAuthor({
-            name: message.author.username,
-            iconURL: message.author.displayAvatarURL(),
-          })
-          .setDescription(`:x: | **You can't kick the guild owner**`)
-          .setColor("Orange")
-          .setTimestamp();
-        return message.reply({ embeds: [embed] });
+        return message.reply(
+          errorEmbed(client, {
+            name: "KickCommandError",
+            origin: "KickGuildOwner",
+            message: ":x: | **You cannot kick the server owner.**",
+          }),
+        );
       }
 
       if (!member.kickable) {
-        const embed = new EmbedBuilder()
-          .setAuthor({
-            name: message.author.username,
-            iconURL: message.author.displayAvatarURL(),
-          })
-          .setDescription(`:x: | **This member is not kick-able**`)
-          .setColor("Orange")
-          .setTimestamp();
-        return message.reply({ embeds: [embed] });
+        return message.reply(
+          errorEmbed(client, {
+            name: "KickCommandError",
+            origin: "KickMemberNotKickableByClient",
+            message: `:x: | **I cannot kick this member.**`,
+          }),
+        );
       }
 
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(

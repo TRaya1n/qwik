@@ -8,25 +8,39 @@ import {
   messageLink,
 } from "discord.js";
 import { Qwik } from "../../Qwik";
-import { CommandProperties } from "../../Qwik/interfaces/QwikCommandOptions";
+import {
+  CommandProperties,
+  SlashCommandProperties,
+} from "../../Qwik/interfaces/QwikCommandOptions";
+import { logger } from "../../Utils/pino-logger";
+import { errorEmbed } from "../../Utils/helpers";
 
-export const SlashCommand = {
+export const SlashCommand: SlashCommandProperties = {
   data: new SlashCommandBuilder()
     .setName("clear")
-    .setDescription("Clear messages sent by the bot!")
+    .setDescription("Clear messages sent by Qwik!")
     .setDMPermission(false)
-    .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages),
+    .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages)
+    .addIntegerOption((option) => {
+      return option
+        .setName("amount")
+        .setDescription("Amount of messages to clear (1-100)")
+        .setMinValue(1)
+        .setMaxValue(100)
+        .setRequired(true);
+    }),
   execute: async (client: Qwik, interaction: ChatInputCommandInteraction) => {
     await interaction.deferReply({ ephemeral: true });
+    const amount = interaction.options.getInteger("amount", true);
 
-    await deleteMessagesSafely(interaction);
+    await deleteMessagesSafely(interaction, amount);
 
     const embed = new EmbedBuilder()
       .setAuthor({
         name: interaction.user.username,
         iconURL: interaction.user.displayAvatarURL(),
       })
-      .setDescription(`**Cleared 20 messages sent by me!**`)
+      .setDescription(`**Purged ${amount} messages sent by me!**`)
       .setColor("Orange")
       .setFooter({ text: `Executed by ${interaction.user.username}` })
       .setTimestamp();
@@ -35,23 +49,19 @@ export const SlashCommand = {
       interaction.channel?.send({ embeds: [embed] });
     }, 2000);
 
-    interaction.editReply({ content: `**Cleared 20 messages**` });
+    interaction.editReply({ content: `**Purged ${amount} messages**` });
   },
 };
 
 async function deleteMessagesSafely(
   interaction: ChatInputCommandInteraction | Message,
+  amount: any,
 ) {
   const { client } = interaction;
   try {
     const messages = await interaction.channel?.messages
-      .fetch({
-        limit: 20,
-        cache: false,
-      })
-      .catch((error) => {
-        console.debug(error, ".catch");
-      });
+      .fetch({ limit: amount, cache: false })
+      .catch(logger.error);
 
     messages
       ?.filter((message) => message.author.id === client.user?.id)
@@ -84,21 +94,33 @@ async function deleteMessagesSafely(
 export const MessageCommand: CommandProperties = {
   name: "clear",
   aliases: [],
-  description: "Purge messages sent by the bot",
+  description: "Purge messages sent by Qwik!",
   category: "moderation",
   permissions: {
     user: ["ManageMessages"],
     client: ["ManageMessages"],
   },
   execute: async (client: Qwik, message: Message, args: any[]) => {
-    await deleteMessagesSafely(message);
+    const amount = !isNaN(args[0]) ? args[0] : false;
+
+    if (!amount) {
+      return message.channel.send(
+        errorEmbed(client, {
+          name: "ClearCommandError",
+          origin: "AmountArgumentIsNull",
+          message: `:x: | **Please specify an amount of messages to clear**`,
+        }),
+      );
+    }
+
+    await deleteMessagesSafely(message, 20);
 
     const embed = new EmbedBuilder()
       .setAuthor({
         name: message.author.username,
         iconURL: message.author.displayAvatarURL(),
       })
-      .setDescription(`**Cleared 20 messages sent by me**`)
+      .setDescription(`**Purged ${amount} messages sent by me**`)
       .setColor("Orange")
       .setTimestamp();
 

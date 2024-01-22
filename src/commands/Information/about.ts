@@ -9,8 +9,9 @@ import {
 } from "discord.js";
 import { Qwik } from "../../Qwik";
 import { models } from "../../models/index";
+import { SlashCommandProperties } from "../../Qwik/interfaces/QwikCommandOptions";
 
-export const SlashCommand = {
+export const SlashCommand: SlashCommandProperties = {
   data: new SlashCommandBuilder()
     .setName("about")
     .setDescription("View information about the bot!"),

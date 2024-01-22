@@ -3,14 +3,14 @@ import {
   SlashCommandBuilder,
   EmbedBuilder,
   Message,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ButtonInteraction,
 } from "discord.js";
 import { Qwik } from "../../Qwik/index";
+import {
+  CommandProperties,
+  SlashCommandProperties,
+} from "../../Qwik/interfaces/QwikCommandOptions";
 
-export const SlashCommand = {
+export const SlashCommand: SlashCommandProperties = {
   data: new SlashCommandBuilder()
     .setName("ping")
     .setDescription("Returns bot ping!"),
@@ -45,7 +45,7 @@ export const SlashCommand = {
   },
 };
 
-export const MessageCommand = {
+export const MessageCommand: CommandProperties = {
   name: "ping",
   aliases: [],
   category: "bot",

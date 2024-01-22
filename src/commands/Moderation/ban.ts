@@ -9,8 +9,10 @@ import {
   ComponentType,
 } from "discord.js";
 import { Qwik } from "../../Qwik";
+import { errorEmbed } from "../../Utils/helpers";
+import { SlashCommandProperties } from "../../Qwik/interfaces/QwikCommandOptions";
 
-export const SlashCommand = {
+export const SlashCommand: SlashCommandProperties = {
   data: new SlashCommandBuilder()
     .setName("ban")
     .setDescription("Ban a member of a guild")
@@ -41,16 +43,12 @@ export const SlashCommand = {
 
     if (member && member.id) {
       if (member.id === interaction.guild?.ownerId) {
-        const embed = new EmbedBuilder()
-          .setAuthor({
-            name: interaction.user.username,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setDescription(`:x: | **can't ban the guild owner**`)
-          .setColor("Orange")
-          .setTimestamp();
-        interaction.editReply({ embeds: [embed] });
-        return;
+        const embed = errorEmbed(client, {
+          name: "BanCommandError",
+          origin: "BanGuildOwner",
+          message: ":x: | **You cannot ban the owner of the guild**",
+        });
+        return interaction.editReply(embed);
       }
 
       if (
@@ -59,33 +57,23 @@ export const SlashCommand = {
         ) &&
         interactionMember.roles.highest.comparePositionTo(
           member.roles.highest,
-        ) > 1
+        ) >= 1
       ) {
-        const embed = new EmbedBuilder()
-          .setAuthor({
-            name: interaction.user.username,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setDescription(
-            `:x: | **${member} has a higher role than ${interactionMember}**`,
-          )
-          .setColor("Orange")
-          .setTimestamp();
-        interaction.editReply({ embeds: [embed] });
-        return;
+        const embed = errorEmbed(client, {
+          name: "BanCommandError",
+          origin: "MemberBanHigherRole",
+          message: `:x: | **You cannot ban this member because they have a higher role than you**`,
+        });
+        return interaction.editReply(embed);
       }
 
       if (!member.bannable && !member.manageable) {
-        const embed = new EmbedBuilder()
-          .setAuthor({
-            name: interaction.user.username,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setDescription(`:x: | **This member is not ban-able**`)
-          .setColor("Orange")
-          .setTimestamp();
-        interaction.editReply({ embeds: [embed] });
-        return;
+        const embed = errorEmbed(client, {
+          name: "BanCommandError",
+          origin: "BanMemberNotManageableByClient",
+          message: `:x: | **I cannot ban this member**`,
+        });
+        return interaction.editReply({ embeds: [embed] });
       }
 
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -129,7 +117,7 @@ export const SlashCommand = {
               .setTimestamp();
 
             await member.ban({
-              reason: reason ? reason : "No reason provided [qwik]",
+              reason: reason ? reason : "No reason provided.",
             });
 
             interaction.editReply({ embeds: [embed], components: [] });

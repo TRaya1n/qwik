@@ -14,6 +14,7 @@ import {
 import { Qwik } from "../../Qwik";
 import { CommandProperties } from "../../Qwik/interfaces/QwikCommandOptions";
 import { getCommand } from "../../Utils/CommandUtils";
+import { errorEmbed } from "../../Utils/helpers";
 
 export const MessageCommand: CommandProperties = {
   name: "nickname",
@@ -26,7 +27,11 @@ export const MessageCommand: CommandProperties = {
     client: ["ManageNicknames"],
   },
   execute: async (client: Qwik, message: Message, args: string[]) => {
-    const member = message.mentions.members?.first();
+    if (!message.guild) return;
+
+    const member =
+      message.mentions.members?.first() ||
+      (await message.guild.members.fetch(args[0]));
 
     if (!member) {
       const embed = getCommand({
@@ -41,6 +46,27 @@ export const MessageCommand: CommandProperties = {
 
       message.channel.send({ embeds: [embed] });
       return;
+    }
+
+    if (
+      message.member?.roles.highest.comparePositionTo(member.roles.highest) &&
+      message.member.roles.highest.comparePositionTo(member.roles.highest) >= 1
+    ) {
+      const embed = errorEmbed(client, {
+        name: "MemberHasAHigherRole",
+        origin: "NicknameCommandError",
+        message: ":x: | You cannot change the nickname of this member! ",
+      });
+      return message.channel.send(embed);
+    }
+
+    if (!member.manageable) {
+      const embed = errorEmbed(client, {
+        name: "BotPermissions",
+        origin: "NicknameCommandError",
+        message: ":x: | I cannot change the nickname of this member!",
+      });
+      return message.channel.send(embed);
     }
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -116,7 +142,7 @@ export const MessageCommand: CommandProperties = {
             ),
           );
 
-          await interaction.showModal(modal);
+        await interaction.showModal(modal);
       }
     });
   },

@@ -10,6 +10,7 @@ import { CommandProperties } from "../../Qwik/interfaces/QwikCommandOptions";
 import { Qwik } from "../../Qwik";
 import { GuildSchema } from "../../models/Schema/Guild";
 import { logger } from "../../Utils/pino-logger";
+import { errorEmbed } from "../../Utils/helpers";
 
 export const MessageCommand: CommandProperties = {
   name: "anti",
@@ -25,49 +26,40 @@ export const MessageCommand: CommandProperties = {
     const data = await GuildSchema.findOne({ guildId: message.guildId });
 
     if (!data) {
-      const embed = new EmbedBuilder()
-        .setAuthor({
-          name: message.author.username,
-          iconURL: message.author.displayAvatarURL(),
-        })
-        .setDescription(
-          ":x: | **Please run this command again.**\n> **Reason:**\n`-` Server not found in the database (new)",
-        )
-        .setColor("Orange")
-        .setTimestamp();
-      message.channel.send({ embeds: [embed] });
-      return await new GuildSchema({ guildId: message.guildId }).save();
+      const embed = errorEmbed(client, {
+        name: "AntiCommandError",
+        origin: "NewGuild|TDB",
+        message:
+          ":x: | **Qwik does not have any data in this server, please use run this command again to fix this error!**",
+      });
+      message.channel.send(embed);
+      return await new GuildSchema({ guildId: message.guildId })
+        .save()
+        .catch(logger.error);
     }
 
     const type = args[0];
     const mode = args[1];
 
     if (!["invite"].includes(type)) {
-      const embed = new EmbedBuilder()
-        .setAuthor({
-          name: message.author.username,
-          iconURL: message.author.displayAvatarURL(),
-        })
-        .setDescription(
-          `:x: | **Type argument is invalid, type argument has to be one of these:** \`invite\``,
-        )
-        .setColor("Orange")
-        .setTimestamp();
-      return message.channel.send({ embeds: [embed] });
+      const embed = errorEmbed(client, {
+        name: "AntiCommandError",
+        origin: "AntiTypesInvalid",
+        message:
+          ":x: | **Type argument is invalid, type argument has to be one of these: `invite`**",
+      });
+
+      return message.channel.send(embed);
     }
 
     if (!["on", "off"].includes(mode)) {
-      const embed = new EmbedBuilder()
-        .setAuthor({
-          name: message.author.username,
-          iconURL: message.author.displayAvatarURL(),
-        })
-        .setDescription(
-          `:x: | **Mode argument is invalid, mode argument has to be on/off.**`,
-        )
-        .setColor("Orange")
-        .setTimestamp();
-      return message.channel.send({ embeds: [embed] });
+      const embed = errorEmbed(client, {
+        name: "AntiCommandError",
+        origin: "AntiModesInvalid",
+        message:
+          ":x: | **Mode argument is invalid, mode argument has to be one of these: `on`/`off`**",
+      });
+      return message.channel.send(embed);
     }
 
     if (type === "invite") {

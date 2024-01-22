@@ -22,7 +22,7 @@ function backend() {
   readdirSync("./backend/").forEach((file) => {
     if (file.endsWith(".ts")) {
       const object = require(`../backend/${file}`);
-      object.backend.get(client);
+      object.backend.get(client, logger);
     }
   });
 }

@@ -1,6 +1,6 @@
 {
   "name": "qwik",
-  "version": "1.3.0",
+  "version": "1.3.5",
   "description": "A discord bot made to be the only bot in you're server",
   "scripts": {
     "start": "tsx src/client.ts",

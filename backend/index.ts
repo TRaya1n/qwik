@@ -1,9 +1,10 @@
 const express = require("express");
+import { Logger } from "pino";
 import { Qwik } from "../src/Qwik/index";
 import serialize from "serialize-javascript";
 
 export const backend = {
-  get: (client: Qwik) => {
+  get: (client: Qwik, logger: Logger) => {
     const app = express();
 
     app.use(express.json());
@@ -20,6 +21,21 @@ export const backend = {
         p: ["/guilds/:id", "/guilds/:id/:cid"],
         d: { i: "You can't access any data without the required header." },
       });
+    });
+
+    // Public endpoint
+    app.get("/api/commands/:name", (req, res) => {
+      const { name } = req.params;
+      if (name !== "all_commands.slash") {
+        const command = client.commands.get(name);
+        if (!command) {
+          return res.status(401).send({ error: "command not found" });
+        }
+
+        return res.status(200).json(command);
+      } else {
+        return res.status(200).json(client.commands.toJSON());
+      }
     });
 
     app.get("/api/users/:id", checkForHeader, async (req, res) => {
@@ -62,7 +78,7 @@ export const backend = {
     });
 
     app.listen(3000, () => {
-      console.log("Website Ready!");
+      logger.info("API is running on port 3000");
     });
 
     function checkForHeader(req: Request, res: Response, next: any) {
@@ -70,8 +86,8 @@ export const backend = {
         req.headers["x-qwik-api-key"] &&
         req.headers["x-qwik-api-key"] === "qwik"
       ) {
-        console.log(
-          `[${new Date().toISOString()}] ${req.method}:${req.url} / ${req.headers["x-forwarded-for"]}`,
+        logger.warn(
+          `${req.method}:${req.url} / ${req.headers["x-forwarded-for"]}`,
         );
         return next();
       } else {

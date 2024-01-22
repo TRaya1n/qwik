@@ -5,8 +5,12 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import { Qwik } from "../../Qwik";
+import {
+  CommandProperties,
+  SlashCommandProperties,
+} from "../../Qwik/interfaces/QwikCommandOptions";
 
-export const SlashCommand = {
+export const SlashCommand: SlashCommandProperties = {
   data: new SlashCommandBuilder()
     .setName("uptime")
     .setDescription("See how long the bot has been up for!"),
@@ -26,7 +30,7 @@ export const SlashCommand = {
   },
 };
 
-export const MessageCommand = {
+export const MessageCommand: CommandProperties = {
   name: "uptime",
   category: "bot",
   description: `See how long the bot hass been up for!`,
