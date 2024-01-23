@@ -6,3 +6,6 @@ package-lock.json
 .devcontainer/
 yarn.lock
 .codesandbox/
+src/ids.txt
+build/
+backend/

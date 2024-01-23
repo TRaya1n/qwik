@@ -1,4 +1,4 @@
-const express = require("express");
+/*const express = require("express");
 import { Logger } from "pino";
 import { Qwik } from "../src/Qwik/index";
 import serialize from "serialize-javascript";
@@ -98,3 +98,4 @@ export const backend = {
     }
   },
 };
+*/
