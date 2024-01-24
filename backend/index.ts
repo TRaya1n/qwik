@@ -1,29 +1,29 @@
-/*const express = require("express");
-import { Logger } from "pino";
-import { Qwik } from "../src/Qwik/index";
-import serialize from "serialize-javascript";
+import { Logger, SapphireClient } from "@sapphire/framework";
+import { bot_config as config } from '../src/config';
+import express, { Response, Request } from "express";
 
 export const backend = {
-  get: (client: Qwik, logger: Logger) => {
+  get: (client: SapphireClient, logger: Logger) => {
     const app = express();
 
     app.use(express.json());
 
-    app.get("/", (req, res) => {
+    app.get("/", (req: Request, res: Response) => {
       res.status(200).send({
         message: "Working, Qwik!",
         ws_ping: client.ws.ping,
       });
     });
 
-    app.get("/api", (req, res) => {
+    app.get("/api", (req: Request, res: Response) => {
       res.status(200).json({
         p: ["/guilds/:id", "/guilds/:id/:cid"],
         d: { i: "You can't access any data without the required header." },
       });
     });
 
-    // Public endpoint
+    // Public endpoint -> Removed for v2 will be added later.
+    /*
     app.get("/api/commands/:name", (req, res) => {
       const { name } = req.params;
       if (name !== "all_commands.slash") {
@@ -36,9 +36,9 @@ export const backend = {
       } else {
         return res.status(200).json(client.commands.toJSON());
       }
-    });
+    });*/
 
-    app.get("/api/users/:id", checkForHeader, async (req, res) => {
+    app.get("/api/users/:id", checkForHeader, async (req: Request, res: Response) => {
       try {
         const { id } = req.params;
         const user = await client.users.fetch(id);
@@ -50,7 +50,7 @@ export const backend = {
       }
     });
 
-    app.get("/api/guilds/:id", checkForHeader, async (req, res) => {
+    app.get("/api/guilds/:id", checkForHeader, async (req: Request, res: Response) => {
       try {
         const { id } = req.params;
         const guild = await client.guilds.fetch(id);
@@ -62,7 +62,7 @@ export const backend = {
       }
     });
 
-    app.get("/api/guilds/:id/:cid", checkForHeader, async (req, res) => {
+    app.get("/api/guilds/:id/:cid", checkForHeader, async (req: Request, res: Response) => {
       try {
         const { id, cid } = req.params;
         const guild = await client.guilds.fetch(id);
@@ -77,8 +77,8 @@ export const backend = {
       }
     });
 
-    app.listen(3000, () => {
-      logger.info("API is running on port 3000");
+    app.listen(config.api.port, () => {
+      logger.info("API is running on port " + config.api.port);
     });
 
     function checkForHeader(req: Request, res: Response, next: any) {
@@ -98,4 +98,3 @@ export const backend = {
     }
   },
 };
-*/

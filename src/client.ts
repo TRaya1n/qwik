@@ -5,10 +5,12 @@ import {
   ApplicationCommandRegistries,
 } from "@sapphire/framework";
 import { GatewayIntentBits } from "discord.js";
+import mongoose from "mongoose";
 
-import { config } from "dotenv";
-
-config();
+// Configs
+import { sapphire_configs as sappconfig } from "./config";
+import { configDotenv } from "dotenv";
+configDotenv();
 
 const client = new SapphireClient({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
@@ -24,9 +26,9 @@ ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
 
 const main = async () => {
   try {
-    client.logger.info("Logging in...");
+    mongoose.connect(process.env.MONGOOSE_URI!);
+    client.logger.info("Connected to the db!");
     await client.login();
-    client.logger.info("Logged in!");
   } catch (error) {
     client.logger.error(error);
   }
