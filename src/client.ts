@@ -1,4 +1,9 @@
-import { SapphireClient, LogLevel } from "@sapphire/framework";
+import {
+  SapphireClient,
+  LogLevel,
+  RegisterBehavior,
+  ApplicationCommandRegistries,
+} from "@sapphire/framework";
 import { GatewayIntentBits } from "discord.js";
 
 import { config } from "dotenv";
@@ -12,6 +17,10 @@ const client = new SapphireClient({
   },
   loadApplicationCommandRegistriesStatusListeners: false,
 });
+
+ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
+  RegisterBehavior.BulkOverwrite,
+);
 
 const main = async () => {
   try {
