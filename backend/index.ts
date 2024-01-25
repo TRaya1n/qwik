@@ -1,6 +1,10 @@
 import { Logger, SapphireClient } from "@sapphire/framework";
-import { bot_config as config } from '../src/config';
+
 import express, { Response, Request } from "express";
+
+const config = {
+  api: { enabled: false, port: 3000 }
+}
 
 export const backend = {
   get: (client: SapphireClient, logger: Logger) => {

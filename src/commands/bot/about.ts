@@ -1,5 +1,6 @@
 import { Command } from "@sapphire/framework";
-import { EmbedBuilder, embedLength } from "discord.js";
+import { PaginatedMessage } from "@sapphire/discord.js-utilities";
+import { EmbedBuilder } from "discord.js";
 
 export class AboutCommand extends Command {
   public constructor(context: Command.LoaderContext, options: Command.Options) {
@@ -13,72 +14,29 @@ export class AboutCommand extends Command {
       return builder
         .setName("about")
         .setDescription(`About me!`)
-        .addStringOption((option) => {
-          return option
-            .setName("module")
-            .setDescription(`View information on a specific module!`)
-            .addChoices(
-              {
-                name: "Moderation",
-                value: "moderation",
-              },
-              {
-                name: "Automod",
-                value: "automod",
-              },
-            )
-            .setRequired(false);
-        })
-        .addBooleanOption((option) => {
-          return option
-            .setName("hide")
-            .setDescription("Hide the interaction response?")
-            .setRequired(false);
-        });
     });
   }
 
-  public override chatInputRun(
+  public override async chatInputRun(
     interaction: Command.ChatInputCommandInteraction,
   ) {
-    const module = interaction.options.getString("module") || false;
-    const ephemeral = interaction.options.getBoolean("hide") || false;
-
-    if (!module) {
-      const embed = new EmbedBuilder()
+    const page = new PaginatedMessage({
+      template: new EmbedBuilder()
+        .setColor("Blurple")
+        .setTimestamp()
         .setAuthor({
           name: interaction.user.username,
           iconURL: interaction.user.displayAvatarURL(),
-        })
-        .setThumbnail(this.container.client.user?.displayAvatarURL()!)
-        .setDescription(`About me`)
-        .setColor("Blurple")
-        .setTimestamp();
+        }),
+    });
 
-      interaction.reply({ embeds: [embed], ephemeral });
-    } else {
-      const embed = this.module(
-        module,
-        new EmbedBuilder()
-          .setAuthor({
-            name: interaction.user.username,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setThumbnail(this.container.client.user?.displayAvatarURL()!)
-          .setColor("Blurple")
-          .setTimestamp(),
-      );
-      interaction.reply({ embeds: [embed], ephemeral });
-    }
-  }
+    const MODERATION_DESCRIPTION: string = `# Moderation\n- *Qwik v2 has new moderation feature's!*\n\n</moderation nickname:1199648228438712321>\n- **Change the specified members nickname.**\n - \`<nickname>\`: **The nickname to give this member. (max 32 characters)**\n - \`[hide]\`: **Hide the response from the interaction**\n\n</moderation kick:1199648228438712321>\n- **Kick the specified member from this server.**\n - \`<member>\`: **The member to kick from this guild**\n - \`[reason]\`: **The reason for kicking this member from this guild. (max 35 characters)**\n\n</moderation ban:1199648228438712321>\n- **Ban the specified member from this server**\n - \`<member>\`: **The member to ban**\n - \`[reason]\`: **The reason for banning this member**`;
+    //const ADMIN_DESCRIPTION: string = "";
 
-  public module(name: String, embed: EmbedBuilder) {
-    if (name === "moderation") {
-      return embed.setDescription("Moderation");
-    } else if (name === "automod") {
-      return embed.setDescription("automod");
-    }
+    page
+      .addPageEmbed((embed) => embed.setDescription(MODERATION_DESCRIPTION))
+      .addPageEmbed((embed) => embed.setDescription("Admin page"));
 
-    return embed;
+    await page.run(interaction, interaction.user);
   }
 }

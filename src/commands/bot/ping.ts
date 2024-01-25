@@ -1,4 +1,4 @@
-import { Command, RegisterBehavior } from "@sapphire/framework";
+import { Command } from "@sapphire/framework";
 import { EmbedBuilder } from "discord.js";
 
 export class PingCommand extends Command {

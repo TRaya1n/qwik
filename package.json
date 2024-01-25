@@ -1,6 +1,6 @@
 {
   "name": "qwik",
-  "version": "2.0.8-dev",
+  "version": "2.1.2dev",
   "description": "A multipurpose Discord bot",
   "main": "build/src/client.ts",
   "scripts": {
@@ -17,6 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "@sapphire/decorators": "^6.0.4",
+    "@sapphire/discord.js-utilities": "^7.1.6",
     "@sapphire/framework": "^5.0.7",
     "@sapphire/plugin-subcommands": "^6.0.3",
     "@types/node": "^20.10.6",

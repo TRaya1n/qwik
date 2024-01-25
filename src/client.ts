@@ -4,20 +4,20 @@ import {
   RegisterBehavior,
   ApplicationCommandRegistries,
 } from "@sapphire/framework";
-import { GatewayIntentBits } from "discord.js";
-import mongoose from "mongoose";
+import { GatewayIntentBits, Partials } from "discord.js";
+import mongoose from 'mongoose';
 
 // Configs
-import { sapphire_configs as sappconfig } from "./config";
 import { configDotenv } from "dotenv";
 configDotenv();
 
 const client = new SapphireClient({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
+  partials: [Partials.Channel],
   logger: {
     level: LogLevel.Debug,
   },
-  loadApplicationCommandRegistriesStatusListeners: false,
+  loadApplicationCommandRegistriesStatusListeners: false
 });
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(

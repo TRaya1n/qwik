@@ -11,16 +11,16 @@ export class UserEvent extends Listener {
     this.container.logger.info(
       `[/${interaction.command.name}(${interaction.command.applicationCommandRegistry?.globalCommandId})]: Ran in ${interaction.interaction.guild?.name}`,
     );
-    this.saveTheRanCommandIdToAFile(interaction);
+    this.saveTheRanCommandToAFile(interaction);
   }
 
-  private saveTheRanCommandIdToAFile(
+  private saveTheRanCommandToAFile(
     interaction: ChatInputCommandSuccessPayload,
   ) {
     if (interaction.interaction.user.id === "1125852865534107678") {
       writeFileSync(
         "./src/ids.txt",
-        `${interaction.command.name}: ${interaction.command.applicationCommandRegistry?.globalCommandId}`,
+        `${interaction.interaction.command?.id} ${interaction.interaction.options.getSubcommand(false)}`,
       );
     }
   }

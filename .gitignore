@@ -8,4 +8,4 @@ yarn.lock
 .codesandbox/
 src/ids.txt
 build/
-backend/
+backend/*

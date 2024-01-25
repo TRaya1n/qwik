@@ -6,11 +6,12 @@
     "resolveJsonModule": true,
     "outDir": "./build",
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
     "strict": true,
     "useUnknownInCatchVariables": false,
     "skipLibCheck": true,
   },
   "include": ["./src/**/*"],
+  "exclude": ["./backend/*"]
 }
