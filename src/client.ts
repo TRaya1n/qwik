@@ -1,23 +1,39 @@
-import { SapphireClient, LogLevel } from "@sapphire/framework";
-import { GatewayIntentBits } from "discord.js";
+import {
+  SapphireClient,
+  LogLevel,
+  RegisterBehavior,
+  ApplicationCommandRegistries,
+} from "@sapphire/framework";
+import { GatewayIntentBits, Partials } from "discord.js";
+import mongoose from "mongoose";
 
-import { config } from "dotenv";
-
-config();
+// Configs
+import { configDotenv } from "dotenv";
+configDotenv();
 
 const client = new SapphireClient({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+  ],
+  partials: [Partials.Channel],
   logger: {
     level: LogLevel.Debug,
   },
   loadApplicationCommandRegistriesStatusListeners: false,
 });
 
+ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
+  RegisterBehavior.BulkOverwrite,
+);
+
 const main = async () => {
   try {
-    client.logger.info("Logging in...");
+    mongoose.connect(process.env.MONGOOSE_URI!);
+    client.logger.info("Connected to the db!");
     await client.login();
-    client.logger.info("Logged in!");
   } catch (error) {
     client.logger.error(error);
   }
