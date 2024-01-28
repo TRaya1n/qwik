@@ -12,6 +12,6 @@
     "useUnknownInCatchVariables": false,
     "skipLibCheck": true,
   },
-  "include": ["./src/**/*"],
-  "exclude": ["./backend/*"]
+  "include": ["./src/**/**/*"],
+  "exclude": ["./backend/*"],
 }

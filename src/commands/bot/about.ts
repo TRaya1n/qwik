@@ -1,6 +1,12 @@
 import { Command } from "@sapphire/framework";
 import { PaginatedMessage } from "@sapphire/discord.js-utilities";
-import { EmbedBuilder } from "discord.js";
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  EmbedBuilder,
+} from "discord.js";
+import { bot_config, emojis } from "../../config";
 
 export class AboutCommand extends Command {
   public constructor(context: Command.LoaderContext, options: Command.Options) {
@@ -11,32 +17,31 @@ export class AboutCommand extends Command {
 
   public override registerApplicationCommands(registry: Command.Registry) {
     registry.registerChatInputCommand((builder) => {
-      return builder
-        .setName("about")
-        .setDescription(`About me!`)
+      return builder.setName("about").setDescription(`About me!`);
     });
   }
 
   public override async chatInputRun(
     interaction: Command.ChatInputCommandInteraction,
   ) {
-    const page = new PaginatedMessage({
-      template: new EmbedBuilder()
-        .setColor("Blurple")
-        .setTimestamp()
-        .setAuthor({
-          name: interaction.user.username,
-          iconURL: interaction.user.displayAvatarURL(),
-        }),
-    });
+    const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setCustomId("about-me")
+        .setEmoji({ id: emojis.folder.id })
+        .setStyle(ButtonStyle.Primary),
+    );
 
-    const MODERATION_DESCRIPTION: string = `# Moderation\n- *Qwik v2 has new moderation feature's!*\n\n</moderation nickname:1199648228438712321>\n- **Change the specified members nickname.**\n - \`<nickname>\`: **The nickname to give this member. (max 32 characters)**\n - \`[hide]\`: **Hide the response from the interaction**\n\n</moderation kick:1199648228438712321>\n- **Kick the specified member from this server.**\n - \`<member>\`: **The member to kick from this guild**\n - \`[reason]\`: **The reason for kicking this member from this guild. (max 35 characters)**\n\n</moderation ban:1199648228438712321>\n- **Ban the specified member from this server**\n - \`<member>\`: **The member to ban**\n - \`[reason]\`: **The reason for banning this member**`;
-    //const ADMIN_DESCRIPTION: string = "";
+    const embed = new EmbedBuilder()
+      .setAuthor({
+        name: interaction.user.username,
+        iconURL: interaction.user.displayAvatarURL(),
+      })
+      .setDescription(
+        `# Qwik\n*Qwik is a multipurpose Discord bot, with feature's like Automod, moderation, logging & suggestions.*\n\n**Ping:** \`${this.container.client.ws.ping}ms\`\n**Developer(s):** \`${bot_config.developerNames.map((user) => user).join(", ")}\``,
+      )
+      .setColor("Blurple")
+      .setTimestamp();
 
-    page
-      .addPageEmbed((embed) => embed.setDescription(MODERATION_DESCRIPTION))
-      .addPageEmbed((embed) => embed.setDescription("Admin page"));
-
-    await page.run(interaction, interaction.user);
+    return interaction.reply({ embeds: [embed], components: [buttons] });
   }
 }
