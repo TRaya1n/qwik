@@ -10,6 +10,11 @@ export const guilds = mongoose.model(
         enabled: { type: Boolean, default: false },
         channel: { type: String, default: null },
       },
+
+      channel_logging: {
+        enabled: { type: Boolean, default: false },
+        channel: { type: String, default: null },
+      },
     },
 
     automod: {

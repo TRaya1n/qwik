@@ -1,5 +1,4 @@
 import { Command } from "@sapphire/framework";
-import { PaginatedMessage } from "@sapphire/discord.js-utilities";
 import {
   ActionRowBuilder,
   ButtonBuilder,

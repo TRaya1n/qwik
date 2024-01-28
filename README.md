@@ -9,10 +9,10 @@
 
 | name       |           usage           |     args |
 | :--------- | :-----------------------: | -------: |
-| about      |     /about moderation     | [module] |
+| about      |     /about                |       [] |
 | ping       |           /ping           |       [] |
 | moderation | /moderation \<subcommand> |       [] |
-| admin      |   /admin \<subcommand>    |       [] |
+| config     |   /config \<subcommand>   |       [] |
 
 # Subcommands
 
@@ -23,9 +23,9 @@
 | nickname | /nickname nickname:Wumpus |       \<> |
 | kick     |   /kick member:@TRaya1n   | \<member> |
 
-## Admin Subcommands:
+## Config Subcommands:
 
-- Empty (;
+- . (;
 
 # Want to self-host the bot?
 

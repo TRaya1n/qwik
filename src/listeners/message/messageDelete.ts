@@ -24,12 +24,13 @@ export class MessageDelete extends Listener {
       .setFooter({ text: `GuildID:  ${guild.id} | MessageDeleted` })
       .setTimestamp();
 
-    
     if (message.embeds[0] && message.embeds[0].description) {
-        if (author.id === this.container.client.user?.id) return;
-        embed.setDescription(`${utils.checkCharLimit(message.embeds[0].description, 4096)}`);
+      if (author.id === this.container.client.user?.id) return;
+      embed.setDescription(
+        `${utils.checkCharLimit(message.embeds[0].description, 4096)}`,
+      );
     } else {
-        embed.setDescription(`${utils.checkCharLimit(message.content, 4096)}`);
+      embed.setDescription(`${utils.checkCharLimit(message.content, 4096)}`);
     }
 
     const data = await guilds.findOne({ id: guild?.id });

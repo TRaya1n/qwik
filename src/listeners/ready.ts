@@ -1,6 +1,5 @@
 import { Listener } from "@sapphire/framework";
 import { bot_config as config } from "../config";
-import { readdirSync } from "fs";
 
 export class ReadyListener extends Listener {
   public constructor(

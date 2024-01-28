@@ -80,7 +80,7 @@ export function compareRolePositions(
  */
 export function checkCharLimit(content: string, stop: number) {
   if (content.length >= stop) {
-    return content.substring(0, stop);
+    return content.substring(0, stop - 3) + "...";
   }
 
   return content;
