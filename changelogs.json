@@ -4,6 +4,11 @@
         "header": "# V2.0.2",
         "it_information": "- *Alot of new feature's!*",
         "commands_added": [
+            {
+                "name": "config logging view",
+                "id": "1200847772094582804",
+                "description": "**See /about for more information.**"
+            },
             { 
                 "name": "config logging message",
                 "id": "1200847772094582804",

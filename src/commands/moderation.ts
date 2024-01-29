@@ -164,7 +164,7 @@ export class Moderation extends Subcommand {
     }
 
     try {
-      let DMsent = true;
+      const DMsent = true;
       member
         .send({
           embeds: [
@@ -176,7 +176,7 @@ export class Moderation extends Subcommand {
           ],
         })
         .catch(() => {
-          let DMsent = false;
+          const DMsent = false;
         });
       const u = await member.ban({ reason });
       return interaction.editReply({
@@ -283,7 +283,7 @@ export class Moderation extends Subcommand {
     }
 
     try {
-      let DMsent = true;
+      const DMsent = true;
       member
         .send({
           embeds: [
@@ -295,7 +295,7 @@ export class Moderation extends Subcommand {
           ],
         })
         .catch((error) => {
-          let DMsent = false;
+          const DMsent = false;
         });
 
       const u = await member.kick(reason);

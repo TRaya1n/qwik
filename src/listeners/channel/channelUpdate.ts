@@ -1,5 +1,8 @@
 import { Events, Listener } from "@sapphire/framework";
-import { EmbedBuilder, GuildBasedChannel, GuildChannel, TextChannel } from "discord.js";
+import {
+  EmbedBuilder,
+  GuildChannel,
+} from "discord.js";
 import { guilds } from "../../Schema/guild";
 
 export class ChannelUpdate extends Listener {
@@ -30,7 +33,6 @@ export class ChannelUpdate extends Listener {
           .setFooter({ text: `GuildID: ${guild.id} | ChannelNameChanged` }),
       );
     }
-
 
     async function sendToLogChannel(embed: EmbedBuilder) {
       const data = await guilds.findOne({ id: guild.id });

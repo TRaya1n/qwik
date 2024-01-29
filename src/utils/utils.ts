@@ -5,13 +5,27 @@ import { emojis } from "../config";
 /**
  *
  * @param {boolean} tof
+ * @description true = checkMarkEmoji; false = WopWopWopYouSuck
  * @returns {emojis.true.raw|emojis.false.raw}
  */
 export function tof(tof: boolean) {
   if (tof) {
-    return emojis.true.raw;
+    return emojis.utility.true.raw;
   } else {
-    return emojis.false.raw;
+    return emojis.utility.false.raw;
+  }
+}
+
+/**
+ * @param {boolean} tof
+ * @description true = active; false = disable
+ * @returns {emojis.utility.active.raw|emojis.utility.disable.raw}
+ */
+export function eod(tof: boolean) {
+  if (tof) {
+    return emojis.utility.active.raw;
+  } else {
+    return emojis.utility.disable.raw;
   }
 }
 
@@ -64,7 +78,7 @@ export function compareRolePositions(
   if (
     member &&
     member2 &&
-    member?.roles.highest.comparePositionTo(member2?.roles.highest) >= 1
+    member.roles.highest.comparePositionTo(member2.roles.highest) >= 1
   ) {
     return true;
   }
@@ -96,4 +110,5 @@ export default {
   memberPermissions: checkMemberPermissions,
   interactionUserPermissions: checkInteractionUserPermissions,
   emoji: tof,
+  eod: eod,
 };
