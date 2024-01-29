@@ -1,9 +1,5 @@
 import { Subcommand } from "@sapphire/plugin-subcommands";
-import {
-  PermissionFlagsBits,
-  ChannelType,
-  EmbedBuilder,
-} from "discord.js";
+import { PermissionFlagsBits, ChannelType, EmbedBuilder } from "discord.js";
 import { guilds } from "../Schema/guild";
 import utils from "../utils/utils";
 

@@ -1,6 +1,6 @@
 export const bot_config = {
   developerIds: ["1125852865534107678"],
-  developerNames: ["notsoray"], // Matches the ID oder.
+  developerNames: ["notsoray"], // Matches the ID.
   default_language: "en_US",
   api: {
     enabled: false,

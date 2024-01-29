@@ -9,34 +9,35 @@ export class ChannelDelete extends Listener {
   ) {
     super(context, {
       ...options,
-      event: Events.ChannelCreate,
+      event: Events.ChannelDelete,
     });
   }
 
   public override async run(channel: GuildChannel) {
     const { guild } = channel;
-    if (channel.partial)
-      await channel.fetch().catch(this.container.logger.error);
 
     const embed = new EmbedBuilder()
       .setAuthor({
         name: guild.name,
         iconURL: guild.iconURL({ forceStatic: true })!,
       })
-      .setDescription(`- **Name**\n - ${channel.name} (${channel.id})`)
-      .setColor("Blurple")
-      .setFooter({ text: `GuildID: ${guild.id} | ChannelCreated` })
+      .setDescription(`- **Name:**\n - ${channel.name} (${channel.id})`)
+      .setFooter({ text: `GuildID: ${guild.id} | ChannelDeleted` })
+      .setColor("Red")
       .setTimestamp();
 
     const data = await guilds.findOne({ id: guild.id });
-    if (data && data.log?.channel_logging) {
-      if (data.log.channel_logging.enabled) {
-        const logchannel = await guild.channels.fetch(
-          data.log.channel_logging.channel,
-        );
-        if (logchannel && logchannel.isTextBased()) {
-          logchannel.send({ embeds: [embed] });
-        }
+    if (
+      data &&
+      data.log &&
+      data.log.message_logging &&
+      data.log.message_logging.enabled
+    ) {
+      const logchannel = await guild.channels.fetch(
+        data.log.message_logging.channel,
+      );
+      if (logchannel && logchannel.isTextBased()) {
+        logchannel.send({ embeds: [embed] });
       }
     }
   }

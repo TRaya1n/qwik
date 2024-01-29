@@ -38,7 +38,7 @@ export class MessageUpdate extends Listener {
           value: `${utils.checkCharLimit(message.content, 1024)}`,
         },
       )
-      .setColor("Blurple")
+      .setColor("Orange")
       .setFooter({ text: `GuildID: ${message.guildId} | MessageUpdated` })
       .setTimestamp();
 
