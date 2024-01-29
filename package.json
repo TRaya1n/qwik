@@ -15,6 +15,7 @@
   },
   "author": "Rayaan",
   "license": "ISC",
+  "repository": "https://github.com/TRaya1n/qwik/tree/QwikV2",
   "dependencies": {
     "@sapphire/decorators": "^6.0.4",
     "@sapphire/discord.js-utilities": "^7.1.6",

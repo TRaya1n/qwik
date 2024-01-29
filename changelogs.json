@@ -1,0 +1,41 @@
+{
+    "LATEST": {
+        "version": "Qwik v2.0.2",
+        "header": "# V2.0.2",
+        "it_information": "- *Alot of new feature's!*",
+        "commands_added": [
+            { 
+                "name": "config logging message",
+                "id": "1200847772094582804",
+                "description": "**See /about for more information.**"
+            }, 
+            {
+                "name":"config logging channel",
+                "id": "1200847772094582804",
+                "description": "**See /about for more information.**"
+            }, 
+            {
+                "name": "changelog",
+                "id": "1201452615117066290",
+                "description": "You're looking at it!"
+            }
+        ],
+        "events_added": {
+            "what-are-events-you-say?": "Audit log events",
+            "adds": [
+                {
+                    "name": "channelCreate",
+                    "description": "Log a message to the configured channel when this event emits"
+                }, 
+                {
+                    "name": "channelUpate",
+                    "description":"Log a message to the configured channel when this event emits"
+                }, 
+                {
+                    "name": "ChannelDelete",
+                    "description":"Log a message to the configured channel when this event emits"
+                }
+            ]
+        }
+    }
+}
