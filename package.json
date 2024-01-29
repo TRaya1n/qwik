@@ -14,7 +14,7 @@
     "lint": "npx eslint src/"
   },
   "author": "Rayaan",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "repository": "https://github.com/TRaya1n/qwik/tree/QwikV2",
   "dependencies": {
     "@sapphire/decorators": "^6.0.4",
