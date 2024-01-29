@@ -37,10 +37,12 @@ export class ChangeLog extends Command {
 
         const embed = new EmbedBuilder()
         .setAuthor({ name: this.container.client.user?.username!, iconURL: this.container.client.user?.displayAvatarURL() })
-        .setDescription(`${cl.LATEST.header}\n${cl.LATEST.it_information}\n\n${commandsAddedFormated}`)
+        .setDescription(`${cl.LATEST.header}\n${cl.LATEST.it_information}\n\n${commandsAddedFormated}\n\n**Audit log events::**`)
         .setFooter({ text: `${cl.LATEST.version}` })
         .setTimestamp()
         .setColor('Blurple');
+
+        cl.LATEST.events_added.adds.forEach((value) => embed.addFields({ name: `${value.name}`, value: `${value.description}` }))
 
         interaction.editReply({ embeds: [embed], components: [row] });
     }
