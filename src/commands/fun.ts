@@ -1,5 +1,5 @@
 import { Subcommand } from "@sapphire/plugin-subcommands";
-import { EightBall } from "../lib/index";
+import { EightBall, getJoke, APICategories } from "../lib/index";
 
 export class FunCommands extends Subcommand {
   public constructor(
@@ -8,7 +8,10 @@ export class FunCommands extends Subcommand {
   ) {
     super(context, {
       ...options,
-      subcommands: [{ name: "8ball", chatInputRun: "eightball" }],
+      subcommands: [
+        { name: "8ball", chatInputRun: "eightball" },
+        { name: "joke", chatInputRun: "joke" },
+      ],
     });
   }
 
@@ -35,13 +38,25 @@ export class FunCommands extends Subcommand {
                 .setName("hide")
                 .setDescription("Hide the response?");
             });
+        })
+        .addSubcommand((command) => {
+          return command
+            .setName("joke")
+            .setDescription("Get a random joke!")
+            .addStringOption((option) => {
+              option.setName("category").setDescription("Select a category");
+              APICategories.forEach((value) =>
+                option.addChoices({ name: `${value}`, value: `${value}` }),
+              );
+              return option;
+            });
         });
     });
   }
 
   public eightball(interaction: Subcommand.ChatInputCommandInteraction) {
     const question = interaction.options.getString("question", true);
-    const ephemeral = interaction.options.getBoolean('hide') || false;
+    const ephemeral = interaction.options.getBoolean("hide") || false;
     const response = EightBall(question, {
       embed: true,
       embed_options: {
@@ -51,8 +66,19 @@ export class FunCommands extends Subcommand {
       target: interaction.user,
       message: interaction,
       message_options: {
-        ephemeral
-      }
+        ephemeral,
+      },
     });
+  }
+
+  public async joke(interaction: Subcommand.ChatInputCommandInteraction) {
+    const category = interaction.options.getString("category");
+    const joke = await getJoke(
+      { category },
+      {
+        embed_options: { color: "Blurple", timestamp: true },
+        data: { target: interaction.user, message: interaction },
+      },
+    );
   }
 }

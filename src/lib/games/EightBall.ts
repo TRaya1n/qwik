@@ -9,8 +9,8 @@ interface EightBallOptions {
   target?: djs.User;
   message?: djs.Message | djs.ChatInputCommandInteraction;
   message_options?: {
-    ephemeral: boolean
-  }
+    ephemeral: boolean;
+  };
 }
 
 /**
@@ -70,7 +70,9 @@ export function EightBall(question: string, options?: EightBallOptions) {
             answers,
           };
         } else {
-          const ephemeral = options.message_options ? options.message_options.ephemeral : false;
+          const ephemeral = options.message_options
+            ? options.message_options.ephemeral
+            : false;
           options.message.reply({ embeds: [embed], ephemeral });
           return {
             question,

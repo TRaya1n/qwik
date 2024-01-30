@@ -19,6 +19,7 @@
     "@sapphire/framework": "^5.0.7",
     "@sapphire/plugin-subcommands": "^6.0.3",
     "@types/node": "^20.10.6",
+    "axios": "^1.6.7",
     "discord.js": "^14.14.1",
     "dotenv": "^16.3.1",
     "mongoose": "^8.0.3"
