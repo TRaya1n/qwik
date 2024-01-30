@@ -1,5 +1,5 @@
 import { Subcommand } from "@sapphire/plugin-subcommands";
-import { EightBall, getJoke, APICategories } from "../lib/index";
+import { EightBall, getJoke, getAnimeQuote, APICategories } from "../lib/index";
 
 export class FunCommands extends Subcommand {
   public constructor(
@@ -11,6 +11,12 @@ export class FunCommands extends Subcommand {
       subcommands: [
         { name: "8ball", chatInputRun: "eightball" },
         { name: "joke", chatInputRun: "joke" },
+
+        {
+          name: "anime",
+          type: "group",
+          entries: [{ name: "quote", chatInputRun: "quote" }],
+        },
       ],
     });
   }
@@ -50,6 +56,16 @@ export class FunCommands extends Subcommand {
               );
               return option;
             });
+        })
+        .addSubcommandGroup((group) => {
+          return group
+            .setName("anime")
+            .setDescription("Anime fun commands!")
+            .addSubcommand((command) => {
+              return command
+                .setName("quote")
+                .setDescription("Get a anime quote.");
+            });
         });
     });
   }
@@ -80,5 +96,15 @@ export class FunCommands extends Subcommand {
         data: { target: interaction.user, message: interaction },
       },
     );
+  }
+
+  public async quote(interaction: Subcommand.ChatInputCommandInteraction) {
+    await getAnimeQuote({
+      embed: true,
+      message: interaction,
+      target: interaction.user,
+      color: "Blurple",
+      timestamp: true,
+    });
   }
 }
