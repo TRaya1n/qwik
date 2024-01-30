@@ -100,6 +100,17 @@ export function checkCharLimit(content: string, stop: number) {
   return content;
 }
 
+export function checkForInviteLink(content: string) {
+  if (
+    /(https?:\/\/)?(www.)?(discord.(gg|io|me|li|link|plus)|discorda?p?p?.com\/invite|invite.gg|dsc.gg|urlcord.cf)\/[^\s/]+?(?=\b)/.test(
+      content,
+    )
+  ) {
+    return true;
+  }
+  return false;
+}
+
 export default {
   limit: {
     charLimitEmbedDescription: (content: string) =>
@@ -111,4 +122,5 @@ export default {
   interactionUserPermissions: checkInteractionUserPermissions,
   emoji: tof,
   eod: eod,
+  inviteLink: checkForInviteLink,
 };

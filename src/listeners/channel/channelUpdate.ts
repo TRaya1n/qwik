@@ -1,8 +1,5 @@
 import { Events, Listener } from "@sapphire/framework";
-import {
-  EmbedBuilder,
-  GuildChannel,
-} from "discord.js";
+import { EmbedBuilder, GuildChannel } from "discord.js";
 import { guilds } from "../../Schema/guild";
 
 export class ChannelUpdate extends Listener {

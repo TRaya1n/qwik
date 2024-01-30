@@ -1,5 +1,10 @@
 import { Subcommand } from "@sapphire/plugin-subcommands";
-import { PermissionFlagsBits, ChannelType, EmbedBuilder } from "discord.js";
+import {
+  PermissionFlagsBits,
+  ChannelType,
+  EmbedBuilder,
+  ThreadAutoArchiveDuration,
+} from "discord.js";
 import { guilds } from "../Schema/guild";
 import utils from "../utils/utils";
 
@@ -12,11 +17,11 @@ export class ConfigCommand extends Subcommand {
       ...options,
       name: "config",
       subcommands: [
+        { name: "view", chatInputRun: "view" },
         {
           name: "logging",
           type: "group",
           entries: [
-            { name: "view", chatInputRun: "logging_view" },
             { name: "message", chatInputRun: "logging_message" },
             { name: "channel", chatInputRun: "logging_channel" },
           ],
@@ -32,15 +37,15 @@ export class ConfigCommand extends Subcommand {
         .setDescription("Config the bot.")
         .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
+        .addSubcommand((command) => {
+          return command
+            .setName("view")
+            .setDescription("View all the configurations.");
+        })
         .addSubcommandGroup((group) => {
           return group
             .setName("logging")
             .setDescription("Config logging settings.")
-            .addSubcommand((command) => {
-              return command
-                .setName("view")
-                .setDescription("View logging configurations.");
-            })
             .addSubcommand((command) => {
               return command
                 .setName("message")
@@ -81,25 +86,36 @@ export class ConfigCommand extends Subcommand {
     });
   }
 
-  public async logging_view(
-    interaction: Subcommand.ChatInputCommandInteraction,
-  ) {
+  public async view(interaction: Subcommand.ChatInputCommandInteraction) {
     const { guild } = interaction;
     await interaction.deferReply();
     const embed = this.baseEmbed(interaction);
     const data = await guilds.findOne({ id: guild?.id });
-    if (data && data.log) {
-      const message = data.log.message_logging?.enabled
-        ? utils.eod(true)
+    if (data) {
+      // Loggings
+      const message = data.log
+        ? data.log.message_logging?.enabled
+          ? utils.eod(true)
+          : utils.eod(false)
         : utils.eod(false);
-      const channel = data.log.channel_logging?.enabled
-        ? utils.eod(true)
+      const channel = data.log
+        ? data.log.channel_logging?.enabled
+          ? utils.eod(true)
+          : utils.eod(false)
         : utils.eod(false);
+
+      // Automods
+      const anti_invite = data.automod
+        ? data.automod.anti_invite?.enabled
+          ? utils.eod(true)
+          : utils.eod(false)
+        : utils.eod(false);
+
       return interaction.editReply({
         embeds: [
           embed
             .setDescription(
-              `# Logging configs\n- **Message:**\n - ${message}\n- **Channel:**\n - ${channel}`,
+              `# Logging configurations\n- **Message:**\n - ${message}\n- **Channel:**\n - ${channel}\n# Automod configurations\n- **Anti-invite**\n - ${anti_invite}`,
             )
             .setColor("Blurple"),
         ],

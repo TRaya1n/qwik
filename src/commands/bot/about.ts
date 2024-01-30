@@ -16,7 +16,7 @@ export class AboutCommand extends Command {
 
   public override registerApplicationCommands(registry: Command.Registry) {
     registry.registerChatInputCommand((builder) => {
-      return builder.setName("about").setDescription('About the bot!');
+      return builder.setName("about").setDescription("About the bot!");
     });
   }
 

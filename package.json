@@ -4,12 +4,9 @@
   "description": "A multipurpose Discord bot",
   "main": "build/src/client.ts",
   "scripts": {
-    "sapphire": "sapphire",
-    "build": "tsc",
     "watch": "tsc -w",
     "start": "node build/src/client.js",
-    "dev": "npm run build && npm run start",
-    "ws": "tsc-watch --onSuccess \"npm run start\"",
+    "bas": "tsc && npm run start",
     "format": "prettier --write src/",
     "lint": "npx eslint src/"
   },
