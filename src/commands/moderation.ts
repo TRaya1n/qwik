@@ -104,7 +104,6 @@ export class Moderation extends Subcommand {
       }
     }
 
-
     await interaction.deferReply();
     const { options, guild, user } = interaction;
     const embed = this.baseEmbed(interaction);
@@ -317,7 +316,7 @@ export class Moderation extends Subcommand {
       interaction.options.getUser("member")?.id!,
     );
     const nickname = options.getString("nickname");
-    const embed = this.baseEmbed(interaction)
+    const embed = this.baseEmbed(interaction);
 
     if (!member) {
       return interaction.editReply({
@@ -360,7 +359,9 @@ export class Moderation extends Subcommand {
     nickname: string | null,
   ) {
     if (nickname === "mod.nick") {
-      await member?.setNickname(`Moderated Nickname ${Math.floor(100).toString(3)}`);
+      await member?.setNickname(
+        `Moderated Nickname ${Math.floor(100).toString(3)}`,
+      );
       return true;
     } else {
       await member?.setNickname(nickname);
@@ -379,7 +380,11 @@ export class Moderation extends Subcommand {
   }
 
   private baseEmbed(interaction: Subcommand.ChatInputCommandInteraction) {
-    return new EmbedBuilder() 
-    .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL() }).setTimestamp();
+    return new EmbedBuilder()
+      .setAuthor({
+        name: interaction.user.username,
+        iconURL: interaction.user.displayAvatarURL(),
+      })
+      .setTimestamp();
   }
 }
