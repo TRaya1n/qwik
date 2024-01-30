@@ -29,14 +29,20 @@ export class FunCommands extends Subcommand {
                 .setDescription("The question you want to ask.")
                 .setRequired(true)
                 .setMinLength(5);
+            })
+            .addBooleanOption((command) => {
+              return command
+                .setName("hide")
+                .setDescription("Hide the response?");
             });
         });
     });
   }
 
-  public async eightball(interaction: Subcommand.ChatInputCommandInteraction) {
+  public eightball(interaction: Subcommand.ChatInputCommandInteraction) {
     const question = interaction.options.getString("question", true);
-    const response = await EightBall(question, {
+    const ephemeral = interaction.options.getBoolean('hide') || false;
+    const response = EightBall(question, {
       embed: true,
       embed_options: {
         color: "Blurple",
@@ -44,6 +50,9 @@ export class FunCommands extends Subcommand {
       },
       target: interaction.user,
       message: interaction,
+      message_options: {
+        ephemeral
+      }
     });
   }
 }

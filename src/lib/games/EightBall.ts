@@ -8,6 +8,9 @@ interface EightBallOptions {
   };
   target?: djs.User;
   message?: djs.Message | djs.ChatInputCommandInteraction;
+  message_options?: {
+    ephemeral: boolean
+  }
 }
 
 /**
@@ -67,7 +70,8 @@ export function EightBall(question: string, options?: EightBallOptions) {
             answers,
           };
         } else {
-          options.message.reply({ embeds: [embed] });
+          const ephemeral = options.message_options ? options.message_options.ephemeral : false;
+          options.message.reply({ embeds: [embed], ephemeral });
           return {
             question,
             answers,
