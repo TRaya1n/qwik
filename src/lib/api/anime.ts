@@ -3,9 +3,9 @@ import djs from "discord.js";
 
 interface getAnimeQuoteOptions {
   embed: boolean;
-  target: djs.User;
-  message: djs.Message | djs.ChatInputCommandInteraction;
-  color: djs.ColorResolvable;
+  target?: djs.User;
+  message?: djs.Message | djs.ChatInputCommandInteraction;
+  color?: djs.ColorResolvable;
   timestamp?: boolean;
 }
 
@@ -48,10 +48,10 @@ export async function getAnimeQuote(options?: getAnimeQuoteOptions) {
     if (options.message instanceof djs.Message) {
       options.message.reply({ embeds: [embed] });
     } else {
-      if (options.message.deferred) {
+      if (options.message?.deferred) {
         options.message.editReply({ embeds: [embed] });
       } else {
-        options.message.reply({ embeds: [embed] });
+        options.message?.reply({ embeds: [embed] });
       }
     }
   }

@@ -1,5 +1,5 @@
 import { Events, Listener } from "@sapphire/framework";
-import { EmbedBuilder, InteractionCollector, Message } from "discord.js";
+import { EmbedBuilder, Message } from "discord.js";
 import utils from "../../utils/utils";
 import { guilds } from "../../Schema/guild";
 import { emojis } from "../../config";
@@ -24,7 +24,12 @@ export class MessageCreate extends Listener {
       // Anti invite
       if (utils.inviteLink(message.content)) {
         if (data && data.automod && data.automod.anti_invite?.enabled) {
-          //if (message.member?.permissions.has('ManageGuild' || 'ManageChannels' || "ManageRoles")) return;
+          if (
+            message.member?.permissions.has(
+              "ManageGuild" || "ManageChannels" || "ManageRoles",
+            )
+          )
+            return;
           const action = data.automod.anti_invite.action;
           const embed = new EmbedBuilder()
             .setAuthor({

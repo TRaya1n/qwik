@@ -1,8 +1,6 @@
 import axios from "axios";
 import djs from "discord.js";
-import utils from "../../utils/utils";
 
-//https://v2.jokeapi.dev/joke/Any
 export const APICategories = [
   "Any",
   "Programming",

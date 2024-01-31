@@ -1,9 +1,20 @@
 import djs from "discord.js";
 
+/**
+ * @typedef {object} EightBallOptions
+ * @param {boolean} embed
+ * @param {object} embed_options
+ * @param {djs.ColorResolvable} embed_options.color
+ * @param {boolean} embed_options.timestamp
+ * @param {djs.User} target
+ * @param {djs.Message | djs.ChatInputCommandInteraction} message
+ * @param {object} message_options
+ * @param {boolean} message_options.ephemeral
+ */
 interface EightBallOptions {
   embed?: boolean;
   embed_options?: {
-    color: djs.ColorResolvable;
+    color?: djs.ColorResolvable;
     timestamp?: boolean;
   };
   target?: djs.User;
@@ -38,7 +49,11 @@ export function EightBall(question: string, options?: EightBallOptions) {
     }
 
     if (options.embed_options) {
-      embed.setColor(options.embed_options.color);
+      embed.setColor(
+        options.embed_options.color
+          ? options.embed_options.color
+          : djs.Colors.Blue,
+      );
       if (options.embed_options.timestamp) {
         embed.setTimestamp();
       }

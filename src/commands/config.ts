@@ -1,10 +1,5 @@
 import { Subcommand } from "@sapphire/plugin-subcommands";
-import {
-  PermissionFlagsBits,
-  ChannelType,
-  EmbedBuilder,
-  ThreadAutoArchiveDuration,
-} from "discord.js";
+import { PermissionFlagsBits, ChannelType, EmbedBuilder } from "discord.js";
 import { guilds } from "../Schema/guild";
 import utils from "../utils/utils";
 
@@ -242,7 +237,7 @@ export class ConfigCommand extends Subcommand {
     } else {
       await new guilds({
         id: guild?.id,
-      });
+      }).save();
       return interaction.editReply({
         embeds: [
           embed

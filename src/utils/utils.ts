@@ -112,10 +112,6 @@ export function checkForInviteLink(content: string) {
 }
 
 export default {
-  limit: {
-    charLimitEmbedDescription: (content: string) =>
-      checkCharLimit(content, 2048),
-  },
   checkCharLimit,
   comparePositions: compareRolePositions,
   memberPermissions: checkMemberPermissions,

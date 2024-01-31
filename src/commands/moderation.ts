@@ -236,7 +236,7 @@ export class Moderation extends Subcommand {
         embeds: [
           embed
             .setDescription(
-              `${utils.emoji(false)} | **Can't ban the guild owner.**`,
+              `${utils.emoji(false)} | **Can't kick the guild owner.**`,
             )
             .setColor("Orange"),
         ],
@@ -311,9 +311,9 @@ export class Moderation extends Subcommand {
     }
 
     await interaction.deferReply();
-    const { guild, user, options } = interaction;
+    const { guild, options } = interaction;
     const member = await guild?.members.fetch(
-      interaction.options.getUser("member")?.id!,
+      interaction.options.getUser("member", true).id,
     );
     const nickname = options.getString("nickname");
     const embed = this.baseEmbed(interaction);

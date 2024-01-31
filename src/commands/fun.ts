@@ -1,5 +1,12 @@
 import { Subcommand } from "@sapphire/plugin-subcommands";
-import { EightBall, getJoke, getAnimeQuote, getFact, APICategories, getFactAPITypes } from "../lib/index";
+import {
+  EightBall,
+  getJoke,
+  getAnimeQuote,
+  getFact,
+  APICategories,
+  getFactAPITypes,
+} from "../lib/index";
 
 export class FunCommands extends Subcommand {
   public constructor(
@@ -11,7 +18,7 @@ export class FunCommands extends Subcommand {
       subcommands: [
         { name: "8ball", chatInputRun: "eightball" },
         { name: "joke", chatInputRun: "joke" },
-        { name: 'facts', chatInputRun: 'facts' },
+        { name: "facts", chatInputRun: "facts" },
 
         {
           name: "anime",
@@ -60,15 +67,15 @@ export class FunCommands extends Subcommand {
         })
         .addSubcommand((command) => {
           return command
-          .setName('facts')
-          .setDescription('Get a random fact!')
-          .addStringOption((option) => {
-            option
-            .setName('type')
-            .setDescription('Select a type of fact!');
-            getFactAPITypes.forEach((value) => option.addChoices({ name: value, value }));
-            return option;
-          })
+            .setName("facts")
+            .setDescription("Get a random fact!")
+            .addStringOption((option) => {
+              option.setName("type").setDescription("Select a type of fact!");
+              getFactAPITypes.forEach((value) =>
+                option.addChoices({ name: value, value }),
+              );
+              return option;
+            });
         })
         .addSubcommandGroup((group) => {
           return group
@@ -86,7 +93,7 @@ export class FunCommands extends Subcommand {
   public eightball(interaction: Subcommand.ChatInputCommandInteraction) {
     const question = interaction.options.getString("question", true);
     const ephemeral = interaction.options.getBoolean("hide") || false;
-    const response = EightBall(question, {
+    EightBall(question, {
       embed: true,
       embed_options: {
         color: "Blurple",
@@ -102,7 +109,7 @@ export class FunCommands extends Subcommand {
 
   public async joke(interaction: Subcommand.ChatInputCommandInteraction) {
     const category = interaction.options.getString("category");
-    const joke = await getJoke(
+    await getJoke(
       { category },
       {
         embed_options: { color: "Blurple", timestamp: true },
@@ -118,10 +125,10 @@ export class FunCommands extends Subcommand {
       message: interaction,
       data: {
         target: interaction.user,
-        color: 'Blurple',
+        color: "Blurple",
         footer: true,
         timestamp: true,
-      }
+      },
     });
   }
 

@@ -1,5 +1,4 @@
 import { Listener } from "@sapphire/framework";
-import { bot_config as config } from "../config";
 
 export class ReadyListener extends Listener {
   public constructor(

@@ -50,8 +50,8 @@ export class ButtonHandler extends InteractionHandler {
       );
 
     try {
-      const message = await interaction.message.fetch();
-      return await page.run(message, interaction.user);
+      await interaction.deferUpdate();
+      return await page.run(interaction, interaction.user);
     } catch (error) {
       this.container.logger.fatal(error);
     }

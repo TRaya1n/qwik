@@ -31,7 +31,7 @@ ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
 
 const main = async () => {
   try {
-    mongoose.connect(process.env.MONGOOSE_URI!);
+    await mongoose.connect(process.env.MONGOOSE_URI!);
     client.logger.info("Connected to the db!");
     await client.login();
   } catch (error) {

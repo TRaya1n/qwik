@@ -9,3 +9,4 @@ yarn.lock
 src/ids.txt
 build/
 backend/*
+.github/
