@@ -44,7 +44,7 @@ export class Moderation extends Subcommand {
               return option
                 .setName("nickname")
                 .setDescription(
-                  'The nickname, type "mod.qwik.nick" for auto nickname',
+                  'The nickname, type "mod.nick" for auto nickname',
                 )
                 .setRequired(true)
                 .setMaxLength(32)
@@ -106,11 +106,7 @@ export class Moderation extends Subcommand {
 
     await interaction.deferReply();
     const { options, guild, user } = interaction;
-
-    // base embed
-    const embed = new EmbedBuilder()
-      .setAuthor({ name: user.username, iconURL: user.displayAvatarURL() })
-      .setTimestamp();
+    const embed = this.baseEmbed(interaction);
 
     const reason = options.getString("reason") || "No reason given";
     const member = await guild?.members.fetch(
@@ -164,7 +160,6 @@ export class Moderation extends Subcommand {
     }
 
     try {
-      let DMsent = true;
       member
         .send({
           embeds: [
@@ -175,9 +170,7 @@ export class Moderation extends Subcommand {
               .setColor("Red"),
           ],
         })
-        .catch(() => {
-          let DMsent = false;
-        });
+        .catch(this.container.logger.error);
       const u = await member.ban({ reason });
       return interaction.editReply({
         embeds: [
@@ -208,17 +201,13 @@ export class Moderation extends Subcommand {
 
     await interaction.deferReply();
 
-    const { guild, options, user } = interaction;
+    const { guild, options } = interaction;
     const member = await guild?.members.fetch(
       options.getUser("member", true).id,
     );
     const interactionMember = await guild?.members.fetch(interaction.user.id);
     const reason = options.getString("reason") || "No reason given";
-
-    // Base embed
-    const embed = new EmbedBuilder()
-      .setAuthor({ name: user.username, iconURL: user.displayAvatarURL() })
-      .setTimestamp();
+    const embed = this.baseEmbed(interaction);
 
     if (!member) {
       return interaction.editReply({
@@ -283,7 +272,6 @@ export class Moderation extends Subcommand {
     }
 
     try {
-      let DMsent = true;
       member
         .send({
           embeds: [
@@ -294,9 +282,7 @@ export class Moderation extends Subcommand {
               .setColor("Orange"),
           ],
         })
-        .catch((error) => {
-          let DMsent = false;
-        });
+        .catch(this.container.logger.error);
 
       const u = await member.kick(reason);
       return interaction.editReply({
@@ -323,16 +309,15 @@ export class Moderation extends Subcommand {
         });
       }
     }
+
     await interaction.deferReply();
     const { guild, user, options } = interaction;
     const member = await guild?.members.fetch(
       interaction.options.getUser("member")?.id!,
     );
     const nickname = options.getString("nickname");
-    //Base embed
-    const embed = new EmbedBuilder()
-      .setAuthor({ name: user.username, iconURL: user.displayAvatarURL() })
-      .setTimestamp();
+    const embed = this.baseEmbed(interaction);
+
     if (!member) {
       return interaction.editReply({
         embeds: [
@@ -344,6 +329,7 @@ export class Moderation extends Subcommand {
         ],
       });
     }
+
     if (!member.manageable) {
       return interaction.editReply({
         embeds: [
@@ -372,10 +358,9 @@ export class Moderation extends Subcommand {
     member: GuildMember | undefined,
     nickname: string | null,
   ) {
-    if (nickname === "mod.qwik.nick") {
+    if (nickname === "mod.nick") {
       await member?.setNickname(
         `Moderated Nickname ${Math.floor(100).toString(3)}`,
-        "Nickname command executed",
       );
       return true;
     } else {
@@ -390,8 +375,16 @@ export class Moderation extends Subcommand {
   ) {
     if (member && member.permissions.has(permissions)) {
       return true;
-    } else {
-      return false;
     }
+    return false;
+  }
+
+  private baseEmbed(interaction: Subcommand.ChatInputCommandInteraction) {
+    return new EmbedBuilder()
+      .setAuthor({
+        name: interaction.user.username,
+        iconURL: interaction.user.displayAvatarURL(),
+      })
+      .setTimestamp();
   }
 }

@@ -20,7 +20,7 @@ export class MessageDelete extends Listener {
 
     const embed = new EmbedBuilder()
       .setAuthor({ name: author.username, iconURL: author.displayAvatarURL() })
-      .setColor("Blurple")
+      .setColor("Red")
       .setFooter({ text: `GuildID:  ${guild.id} | MessageDeleted` })
       .setTimestamp();
 

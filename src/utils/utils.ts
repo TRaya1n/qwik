@@ -5,13 +5,27 @@ import { emojis } from "../config";
 /**
  *
  * @param {boolean} tof
+ * @description true = checkMarkEmoji; false = WopWopWopYouSuck
  * @returns {emojis.true.raw|emojis.false.raw}
  */
 export function tof(tof: boolean) {
   if (tof) {
-    return emojis.true.raw;
+    return emojis.utility.true.raw;
   } else {
-    return emojis.false.raw;
+    return emojis.utility.false.raw;
+  }
+}
+
+/**
+ * @param {boolean} tof
+ * @description true = active; false = disable
+ * @returns {emojis.utility.active.raw|emojis.utility.disable.raw}
+ */
+export function eod(tof: boolean) {
+  if (tof) {
+    return emojis.utility.active.raw;
+  } else {
+    return emojis.utility.disable.raw;
   }
 }
 
@@ -64,7 +78,7 @@ export function compareRolePositions(
   if (
     member &&
     member2 &&
-    member?.roles.highest.comparePositionTo(member2?.roles.highest) >= 1
+    member.roles.highest.comparePositionTo(member2.roles.highest) >= 1
   ) {
     return true;
   }
@@ -86,6 +100,17 @@ export function checkCharLimit(content: string, stop: number) {
   return content;
 }
 
+export function checkForInviteLink(content: string) {
+  if (
+    /(https?:\/\/)?(www.)?(discord.(gg|io|me|li|link|plus)|discorda?p?p?.com\/invite|invite.gg|dsc.gg|urlcord.cf)\/[^\s/]+?(?=\b)/.test(
+      content,
+    )
+  ) {
+    return true;
+  }
+  return false;
+}
+
 export default {
   limit: {
     charLimitEmbedDescription: (content: string) =>
@@ -96,4 +121,6 @@ export default {
   memberPermissions: checkMemberPermissions,
   interactionUserPermissions: checkInteractionUserPermissions,
   emoji: tof,
+  eod: eod,
+  inviteLink: checkForInviteLink,
 };

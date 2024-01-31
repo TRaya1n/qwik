@@ -3,6 +3,7 @@ import {
   PermissionFlagsBits,
   ChannelType,
   EmbedBuilder,
+  ThreadAutoArchiveDuration,
 } from "discord.js";
 import { guilds } from "../Schema/guild";
 import utils from "../utils/utils";
@@ -16,6 +17,7 @@ export class ConfigCommand extends Subcommand {
       ...options,
       name: "config",
       subcommands: [
+        { name: "view", chatInputRun: "view" },
         {
           name: "logging",
           type: "group",
@@ -35,6 +37,11 @@ export class ConfigCommand extends Subcommand {
         .setDescription("Config the bot.")
         .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
+        .addSubcommand((command) => {
+          return command
+            .setName("view")
+            .setDescription("View all the configurations.");
+        })
         .addSubcommandGroup((group) => {
           return group
             .setName("logging")
@@ -77,6 +84,53 @@ export class ConfigCommand extends Subcommand {
             });
         });
     });
+  }
+
+  public async view(interaction: Subcommand.ChatInputCommandInteraction) {
+    const { guild } = interaction;
+    await interaction.deferReply();
+    const embed = this.baseEmbed(interaction);
+    const data = await guilds.findOne({ id: guild?.id });
+    if (data) {
+      // Loggings
+      const message = data.log
+        ? data.log.message_logging?.enabled
+          ? utils.eod(true)
+          : utils.eod(false)
+        : utils.eod(false);
+      const channel = data.log
+        ? data.log.channel_logging?.enabled
+          ? utils.eod(true)
+          : utils.eod(false)
+        : utils.eod(false);
+
+      // Automods
+      const anti_invite = data.automod
+        ? data.automod.anti_invite?.enabled
+          ? utils.eod(true)
+          : utils.eod(false)
+        : utils.eod(false);
+
+      return interaction.editReply({
+        embeds: [
+          embed
+            .setDescription(
+              `# Logging configurations\n- **Message:**\n - ${message}\n- **Channel:**\n - ${channel}\n# Automod configurations\n- **Anti-invite**\n - ${anti_invite}`,
+            )
+            .setColor("Blurple"),
+        ],
+      });
+    } else {
+      return interaction.editReply({
+        embeds: [
+          embed
+            .setDescription(
+              `${utils.emoji(false)} | **There is no configurations found for this server.**`,
+            )
+            .setColor("Blurple"),
+        ],
+      });
+    }
   }
 
   public async logging_message(
