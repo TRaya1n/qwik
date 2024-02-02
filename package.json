@@ -2,10 +2,10 @@
   "name": "qwik",
   "version": "2.0.2",
   "description": "A multipurpose Discord bot",
-  "main": "build/src/client.ts",
+  "main": "build/src/bot.ts",
   "scripts": {
     "watch": "tsc -w",
-    "start": "node build/src/client.js",
+    "start": "node build/src/bot.js",
     "bas": "tsc && npm run start",
     "format": "prettier --write src/",
     "lint": "npx eslint src/"

@@ -11,7 +11,7 @@ export class UserEvent extends Listener {
     this.container.logger.info(
       `[/${interaction.command.name}(${interaction.command.applicationCommandRegistry?.globalCommandId})]: Ran in ${interaction.interaction.guild?.name}`,
     );
-    this.saveTheRanCommandToAFile(interaction);
+    //this.saveTheRanCommandToAFile(interaction);
   }
 
   private saveTheRanCommandToAFile(
