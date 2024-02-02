@@ -3,10 +3,3 @@ node_modules/
 package-lock.json
 .prettierignore
 .vscode/
-.devcontainer/
-yarn.lock
-.codesandbox/
-src/ids.txt
-build/
-backend/*
-.github/
