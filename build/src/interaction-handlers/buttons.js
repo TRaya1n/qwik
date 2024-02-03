@@ -12,7 +12,6 @@ class ButtonHandler extends framework_1.InteractionHandler {
         });
     }
     async run(interaction) {
-        console.log(interaction.customId);
         if (interaction.customId === "about-me")
             return await this.about_me(interaction);
     }

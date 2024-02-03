@@ -7,6 +7,9 @@ import {
   APICategories,
   getFactAPITypes,
 } from "../lib/index";
+import { ChannelType, EmbedBuilder } from "discord.js";
+import db from "../Schema/misc";
+import utils from "../utils/utils";
 
 export class FunCommands extends Subcommand {
   public constructor(
@@ -24,6 +27,11 @@ export class FunCommands extends Subcommand {
           name: "anime",
           type: "group",
           entries: [{ name: "quote", chatInputRun: "quote" }],
+        },
+        {
+          name: "config",
+          type: "group",
+          entries: [{ name: "auto_joke", chatInputRun: "_auto_joke" }],
         },
       ],
     });
@@ -86,8 +94,91 @@ export class FunCommands extends Subcommand {
                 .setName("quote")
                 .setDescription("Get a anime quote.");
             });
+        })
+        .addSubcommandGroup((group) => {
+          return group
+            .setName("config")
+            .setDescription("Config fun commands.")
+            .addSubcommand((command) => {
+              return command
+                .setName("auto_joke")
+                .setDescription("Auto send a joke to a channel!")
+                .addBooleanOption((option) => {
+                  return option
+                    .setName("enabled")
+                    .setDescription("Do you want to enable or disable?")
+                    .setRequired(true);
+                })
+                .addChannelOption((option) => {
+                  return option
+                    .setName("channel")
+                    .setDescription("The channel to send the joke to.")
+                    .addChannelTypes(ChannelType.GuildText)
+                    .setRequired(true);
+                })
+                .addStringOption((option) => {
+                  return option
+                    .setName("every")
+                    .setDescription("How often should i send a joke?")
+                    .addChoices(
+                      { name: "5m", value: "300000" },
+                      { name: "10m", value: "600000" },
+                    )
+                    .setRequired(true);
+                });
+            });
         });
     });
+  }
+
+  public async _auto_joke(interaction: Subcommand.ChatInputCommandInteraction) {
+    const { options, guild } = interaction;
+    await interaction.deferReply();
+    const channel = options.getChannel("channel", true);
+    const every = Number(options.getString("every", true));
+    console.log(every);
+    const status = options.getBoolean("enabled", true);
+    const data: any = await db.misc.findOne({ id: guild?.id });
+    if (data) {
+      if (status) {
+        data.auto_joke.enabled = status;
+        data.auto_joke.channelId = channel.id;
+        data.auto_joke.every = every;
+        await data.save();
+        return interaction.editReply({
+          embeds: [
+            this.baseEmbed(interaction)
+              .setDescription(
+                `${utils.emoji(true)} | **Enabled auto joke in ${channel}, i will send a joke in the channel every: ${every}**`,
+              )
+              .setColor("Blurple"),
+          ],
+        });
+      } else {
+        data.auto_joke.enabled = status;
+        data.auto_joke.channelId = null;
+        data.auto_joke.every = 300000;
+        await data.save();
+        return interaction.editReply({
+          embeds: [
+            this.baseEmbed(interaction)
+              .setDescription(`${utils.emoji(true)} | **Disabled auto joke.**`)
+              .setColor("Blurple"),
+          ],
+        });
+      }
+    } else {
+      await new db.misc({ id: guild?.id }).save();
+      return interaction.editReply({
+        embeds: [
+          this.baseEmbed(interaction)
+            .setDescription(
+              `${utils.emoji(false)} | **Looks like this server does not exist on my database... please run this command again.**`,
+            )
+            .setColor("Blurple"),
+        ],
+      });
+    }
   }
 
   public eightball(interaction: Subcommand.ChatInputCommandInteraction) {
@@ -140,5 +231,14 @@ export class FunCommands extends Subcommand {
       color: "Blurple",
       timestamp: true,
     });
+  }
+
+  public baseEmbed(interaction: Subcommand.ChatInputCommandInteraction) {
+    return new EmbedBuilder()
+      .setAuthor({
+        name: interaction.user.username,
+        iconURL: interaction.user.displayAvatarURL(),
+      })
+      .setTimestamp();
   }
 }

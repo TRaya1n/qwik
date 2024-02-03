@@ -1,5 +1,5 @@
 import axios from "axios";
-import djs from "discord.js";
+import djs, { GuildTextBasedChannel } from "discord.js";
 
 export const APICategories = [
   "Any",
@@ -22,8 +22,11 @@ interface getJokeEmbedOptions {
   };
 
   data: {
-    target: djs.User;
-    message: djs.Message | djs.ChatInputCommandInteraction;
+    target?: djs.User;
+    message:
+      | djs.Message
+      | djs.ChatInputCommandInteraction
+      | GuildTextBasedChannel;
   };
 }
 
@@ -82,7 +85,9 @@ export async function getJoke(
 
     if (embed.data.message instanceof djs.Message) {
       embed.data.message.reply({ embeds: [x9] });
-    } else {
+    } else if (embed.data.message instanceof djs.TextChannel) {
+      embed.data.message.send({ embeds: [x9] });
+    } else if (embed.data.message instanceof djs.ChatInputCommandInteraction) {
       if (embed.data.message.deferred) {
         embed.data.message.editReply({ embeds: [x9] });
       } else {

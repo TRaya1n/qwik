@@ -17,7 +17,6 @@ export class ButtonHandler extends InteractionHandler {
   }
 
   public async run(interaction: ButtonInteraction) {
-    console.log(interaction.customId);
     if (interaction.customId === "about-me")
       return await this.about_me(interaction);
   }

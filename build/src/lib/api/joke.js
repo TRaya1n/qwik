@@ -64,7 +64,10 @@ async function getJoke(API, embed) {
         if (embed.data.message instanceof discord_js_1.default.Message) {
             embed.data.message.reply({ embeds: [x9] });
         }
-        else {
+        else if (embed.data.message instanceof discord_js_1.default.TextChannel) {
+            embed.data.message.send({ embeds: [x9] });
+        }
+        else if (embed.data.message instanceof discord_js_1.default.ChatInputCommandInteraction) {
             if (embed.data.message.deferred) {
                 embed.data.message.editReply({ embeds: [x9] });
             }
