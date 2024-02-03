@@ -6,7 +6,9 @@ const fs_1 = require("fs");
 class UserEvent extends framework_1.Listener {
     run(interaction) {
         this.container.logger.info(`[/${interaction.command.name}(${interaction.command.applicationCommandRegistry?.globalCommandId})]: Ran in ${interaction.interaction.guild?.name}`);
-        //this.saveTheRanCommandToAFile(interaction);
+        if (process.env.NODE_ENV === "development") {
+            this.saveTheRanCommandToAFile(interaction);
+        }
     }
     saveTheRanCommandToAFile(interaction) {
         if (interaction.interaction.user.id === "1125852865534107678") {

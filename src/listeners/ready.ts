@@ -1,5 +1,4 @@
 import { Listener } from "@sapphire/framework";
-import { AutoSendJoke } from "../utils/auto/joke";
 
 export class ReadyListener extends Listener {
   public constructor(
@@ -17,9 +16,5 @@ export class ReadyListener extends Listener {
     this.container.logger.info(
       `${this.container.client.user?.username}, is ready!`,
     );
-
-    setInterval(() => {
-    AutoSendJoke(this.container.client);
-    }, 3600000);
   }
 }

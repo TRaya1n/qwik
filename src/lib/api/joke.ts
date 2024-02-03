@@ -1,7 +1,7 @@
 import axios from "axios";
-import djs, { GuildTextBasedChannel } from "discord.js";
+import djs from "discord.js";
 
-export const APICategories = [
+export const JokeAPICategories = [
   "Any",
   "Programming",
   "Miscellaneous",
@@ -11,40 +11,46 @@ export const APICategories = [
   "Christmas",
 ];
 
-interface getJokeAPIOptions {
-  category?: string | null;
+type JokeAPIBlacklistString =
+  | "nsfw"
+  | "religious"
+  | "political"
+  | "racist"
+  | "sexist"
+  | "explicit";
+
+interface JokeAPIOptions {
+  category: string;
+  blacklist: JokeAPIBlacklistString[];
 }
 
-interface getJokeEmbedOptions {
-  embed_options?: {
-    color: djs.ColorResolvable;
-    timestamp?: true;
-  };
-
-  data: {
-    target?: djs.User;
-    message:
-      | djs.Message
-      | djs.ChatInputCommandInteraction
-      | GuildTextBasedChannel;
-  };
+interface JokeOptions {
+  color?: djs.ColorResolvable;
+  timestamp?: true;
+  footer?: djs.APIEmbedFooter;
+  author?: djs.APIEmbedAuthor;
 }
 
 /**
  *
- * @param {getJokeAPIOptions} API
- * @param {getJokeEmbedOptions} embed
+ * @param {JokeAPIOptions} API
+ * @param {JokeOptions} embed
  */
 export async function getJoke(
-  API?: getJokeAPIOptions,
-  embed?: getJokeEmbedOptions,
+  i: djs.Message | djs.ChatInputCommandInteraction | djs.TextChannel,
+  data?: JokeAPIOptions,
+  embed?: JokeOptions,
 ) {
-  let url = "https://v2.jokeapi.dev/joke/Any";
-  if (API && API.category && APICategories.includes(API.category))
-    url = `https://v2.jokeapi.dev/joke/${API.category}`;
+  let build = "https://v2.jokeapi.dev/joke/Any";
+  let url;
+
+  if (data && JokeAPICategories.includes(data.category))
+    build = `https://v2.jokeapi.dev/joke/${data.category}`;
+  if (data && data.blacklist)
+    url = `${build}?blacklistFlags=${data.blacklist.map((v) => v).join(",")}`;
 
   const response = await axios({
-    url: url + "?blacklistFlags=nsfw,racist,sexist", // blacklist will be an getJokeAPIOption in @lib/api v2
+    url: url,
     method: "GET",
   });
 
@@ -61,12 +67,12 @@ export async function getJoke(
   if (response.data.joke) joke = response.data.joke;
 
   if (embed) {
-    const x9 = new djs.EmbedBuilder();
-    if (embed.embed_options?.timestamp) {
+    const x9 = new djs.EmbedBuilder().setColor(
+      embed.color ? embed.color : "Blurple",
+    );
+
+    if (embed.timestamp) {
       x9.setTimestamp();
-    }
-    if (embed.embed_options?.color) {
-      x9.setColor(embed.embed_options.color);
     }
 
     if (delivery && setup) {
@@ -76,23 +82,27 @@ export async function getJoke(
       x9.setDescription(`${joke}`);
     }
 
-    if (embed.data.target) {
+    if (embed.author) {
       x9.setAuthor({
-        name: embed.data.target.username,
-        iconURL: embed.data.target.displayAvatarURL(),
+        name: embed.author.name,
+        iconURL: embed.author.icon_url,
       });
     }
 
-    if (embed.data.message instanceof djs.Message) {
-      embed.data.message.reply({ embeds: [x9] });
-    } else if (embed.data.message instanceof djs.TextChannel) {
-      embed.data.message.send({ embeds: [x9] });
-    } else if (embed.data.message instanceof djs.ChatInputCommandInteraction) {
-      if (embed.data.message.deferred) {
-        embed.data.message.editReply({ embeds: [x9] });
+    if (embed.footer) {
+      x9.setFooter({ text: embed.footer.text, iconURL: embed.footer.icon_url });
+    }
+
+    if (i instanceof djs.Message) {
+      i.reply({ embeds: [x9] });
+    } else if (i instanceof djs.ChatInputCommandInteraction) {
+      if (i.deferred) {
+        i.editReply({ embeds: [x9] });
       } else {
-        embed.data.message.reply({ embeds: [x9] });
+        i.reply({ embeds: [x9] });
       }
+    } else if (i instanceof djs.TextChannel) {
+      i.send({ embeds: [x9] });
     }
   }
 

@@ -7,7 +7,7 @@ export const misc = mongoose.model(
 
     auto_joke: {
       enabled: { type: Boolean, default: false },
-      channelId: { type: String }
+      channelId: { type: String },
     },
   }),
 );

@@ -18,7 +18,6 @@ const client = new SapphireClient({
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
   ],
-  partials: [Partials.Channel],
   logger: {
     level: LogLevel.Debug,
   },

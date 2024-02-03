@@ -16,7 +16,6 @@ const client = new framework_1.SapphireClient({
         discord_js_1.GatewayIntentBits.GuildMessages,
         discord_js_1.GatewayIntentBits.MessageContent,
     ],
-    partials: [discord_js_1.Partials.Channel],
     logger: {
         level: framework_1.LogLevel.Debug,
     },

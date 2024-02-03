@@ -3,10 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getJoke = exports.APICategories = void 0;
+exports.getJoke = exports.JokeAPICategories = void 0;
 const axios_1 = __importDefault(require("axios"));
 const discord_js_1 = __importDefault(require("discord.js"));
-exports.APICategories = [
+exports.JokeAPICategories = [
     "Any",
     "Programming",
     "Miscellaneous",
@@ -17,15 +17,18 @@ exports.APICategories = [
 ];
 /**
  *
- * @param {getJokeAPIOptions} API
- * @param {getJokeEmbedOptions} embed
+ * @param {JokeAPIOptions} API
+ * @param {JokeOptions} embed
  */
-async function getJoke(API, embed) {
-    let url = "https://v2.jokeapi.dev/joke/Any";
-    if (API && API.category && exports.APICategories.includes(API.category))
-        url = `https://v2.jokeapi.dev/joke/${API.category}`;
+async function getJoke(i, data, embed) {
+    let build = "https://v2.jokeapi.dev/joke/Any";
+    let url;
+    if (data && exports.JokeAPICategories.includes(data.category))
+        build = `https://v2.jokeapi.dev/joke/${data.category}`;
+    if (data && data.blacklist)
+        url = `${build}?blacklistFlags=${data.blacklist.map((v) => v).join(",")}`;
     const response = await (0, axios_1.default)({
-        url: url + "?blacklistFlags=nsfw,racist,sexist", // blacklist will be an getJokeAPIOption in @lib/api v2
+        url: url,
         method: "GET",
     });
     if (response.data.error) {
@@ -41,12 +44,9 @@ async function getJoke(API, embed) {
     if (response.data.joke)
         joke = response.data.joke;
     if (embed) {
-        const x9 = new discord_js_1.default.EmbedBuilder();
-        if (embed.embed_options?.timestamp) {
+        const x9 = new discord_js_1.default.EmbedBuilder().setColor(embed.color ? embed.color : "Blurple");
+        if (embed.timestamp) {
             x9.setTimestamp();
-        }
-        if (embed.embed_options?.color) {
-            x9.setColor(embed.embed_options.color);
         }
         if (delivery && setup) {
             x9.setTitle(`${setup}`);
@@ -55,25 +55,28 @@ async function getJoke(API, embed) {
         else {
             x9.setDescription(`${joke}`);
         }
-        if (embed.data.target) {
+        if (embed.author) {
             x9.setAuthor({
-                name: embed.data.target.username,
-                iconURL: embed.data.target.displayAvatarURL(),
+                name: embed.author.name,
+                iconURL: embed.author.icon_url,
             });
         }
-        if (embed.data.message instanceof discord_js_1.default.Message) {
-            embed.data.message.reply({ embeds: [x9] });
+        if (embed.footer) {
+            x9.setFooter({ text: embed.footer.text, iconURL: embed.footer.icon_url });
         }
-        else if (embed.data.message instanceof discord_js_1.default.TextChannel) {
-            embed.data.message.send({ embeds: [x9] });
+        if (i instanceof discord_js_1.default.Message) {
+            i.reply({ embeds: [x9] });
         }
-        else if (embed.data.message instanceof discord_js_1.default.ChatInputCommandInteraction) {
-            if (embed.data.message.deferred) {
-                embed.data.message.editReply({ embeds: [x9] });
+        else if (i instanceof discord_js_1.default.ChatInputCommandInteraction) {
+            if (i.deferred) {
+                i.editReply({ embeds: [x9] });
             }
             else {
-                embed.data.message.reply({ embeds: [x9] });
+                i.reply({ embeds: [x9] });
             }
+        }
+        else if (i instanceof discord_js_1.default.TextChannel) {
+            i.send({ embeds: [x9] });
         }
     }
     if (delivery && setup) {

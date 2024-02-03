@@ -9,7 +9,7 @@ exports.misc = mongoose_1.default.model("misc", new mongoose_1.default.Schema({
     id: String,
     auto_joke: {
         enabled: { type: Boolean, default: false },
-        channelId: { type: String }
+        channelId: { type: String },
     },
 }));
 exports.default = {

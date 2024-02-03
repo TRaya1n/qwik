@@ -16,13 +16,10 @@ async function AutoSendJoke(client) {
         if (!channel)
             return;
         if (channel instanceof discord_js_1.TextChannel) {
-            (0, lib_1.getJoke)({ category: "Any" }, {
-                data: {
-                    message: channel,
-                },
-                embed_options: {
-                    color: "Blurple",
-                    timestamp: true,
+            (0, lib_1.getJoke)(channel, { category: "Any", blacklist: ["nsfw", "racist", "sexist"] }, {
+                timestamp: true,
+                footer: {
+                    text: "Powered by: https://v2.jokeapi.dev | @lib/v2 : AutoJoke",
                 },
             });
         }

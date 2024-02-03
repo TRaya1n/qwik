@@ -37,7 +37,12 @@ export class ButtonHandler extends InteractionHandler {
       header: "# Config\n",
       extra_information: "- *Qwik v2 has new configure commands!*\n\n",
       commands_logging_message: `</config logging message:1200847772094582804>\n- **Configure the message log channel.**\n - \`<enabled>\`: **Enable/Disable this module.**\n - \`<channel>\`: **The channel to log message updates.**\n\n`,
-      commands_logging_channel: `<config logging channel:1200847772094582804>\n- **Configure the channel log channel.**\n - \`<enabled>\`: **Enable/Disable this module.**\n - \`<channel\`: **The channel to log channel updates.**\n\n`,
+      commands_logging_channel: `</config logging channel:1200847772094582804>\n- **Configure the channel log channel.**\n - \`<enabled>\`: **Enable/Disable this module.**\n - \`<channel\`: **The channel to log channel updates.**\n\n`,
+    };
+    const FUN = {
+      header: "# Fun\n",
+      extra_information: "- *New fun commands!*\n\n",
+      commands_8ball: `</fun 8ball:1199602148929978368>\n- **Ask me a yes-or-no question**\n - \`<question>\`: **The question you want the answer to.**`,
     };
 
     page
@@ -45,6 +50,11 @@ export class ButtonHandler extends InteractionHandler {
       .addPageEmbed((embed) =>
         embed.setDescription(
           `${CONFIG.header}${CONFIG.extra_information}${CONFIG.commands_logging_message}${CONFIG.commands_logging_channel}`,
+        ),
+      )
+      .addPageEmbed((embed) =>
+        embed.setDescription(
+          `${FUN.header}${FUN.extra_information}${FUN.commands_8ball}`,
         ),
       );
 

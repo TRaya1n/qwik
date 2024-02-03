@@ -1,28 +1,34 @@
 import djs from "discord.js";
 import axios from "axios";
 
-export type FactTypes = "useless";
-export const getFactAPITypes = ["useless"];
+export const FactTypes = ["useless"];
 
-interface getFactOptions {
-  type: FactTypes | string;
-  embed: boolean;
-  message?: djs.Message | djs.ChatInputCommandInteraction;
-  data?: {
-    target?: djs.User;
-    footer: boolean;
-    color: djs.ColorResolvable;
-    timestamp?: boolean;
-  };
+interface FactAPIOptions {
+  type: string;
+  author?: djs.APIEmbedAuthor;
+  color?: djs.ColorResolvable;
+  timestamp?: boolean;
+  footer?: djs.APIEmbedFooter;
 }
 
-export async function getFact(options: getFactOptions) {
-  if (options.type === "useless") {
-    await UselessFact(options);
+/**
+ *
+ * @param {djs.Message|djs.ChatInputCommandInteraction|djs.TextChannel} i
+ * @param {FactAPIOptions} data
+ */
+export async function getFact(
+  i: djs.Message | djs.ChatInputCommandInteraction | djs.TextChannel,
+  data: FactAPIOptions,
+) {
+  if (data.type === "useless") {
+    await UselessFact(i, data);
   }
 }
 
-async function UselessFact(options: getFactOptions) {
+async function UselessFact(
+  i: djs.Message | djs.ChatInputCommandInteraction | djs.TextChannel,
+  data: FactAPIOptions,
+) {
   const response = await axios({
     url: `https://uselessfacts.jsph.pl/api/v2/facts/random?language=en`,
     method: "GET",
@@ -32,38 +38,36 @@ async function UselessFact(options: getFactOptions) {
   const text = response.data.text;
   const source = response.data.source;
 
-  if (options.embed) {
-    const embed = new djs.EmbedBuilder();
+  const embed = new djs.EmbedBuilder().setColor(
+    data.color ? data.color : "Blurple",
+  );
 
-    if (options.data?.color) {
-      embed.setColor(options.data.color);
-    }
+  if (data.footer) {
+    embed.setFooter({ text: data.footer.text });
+  }
 
-    if (options.data?.footer) {
-      embed.setFooter({ text: `${id} | ${source}` });
-    }
+  if (data.timestamp) {
+    embed.setTimestamp();
+  }
 
-    if (options.data?.timestamp) {
-      embed.setTimestamp();
-    }
-
-    if (options.data?.target) {
-      embed.setAuthor({
-        name: options.data.target.username,
-        iconURL: options.data.target.displayAvatarURL(),
-      });
-    }
+  if (data.author) {
+    embed.setAuthor({
+      name: data.author.name,
+      iconURL: data.author.icon_url,
+    });
 
     embed.setDescription(`${text}`);
 
-    if (options.message instanceof djs.Message) {
-      options.message.reply({ embeds: [embed] });
-    } else {
-      if (options.message?.deferred) {
-        options.message.editReply({ embeds: [embed] });
+    if (i instanceof djs.Message) {
+      i.reply({ embeds: [embed] });
+    } else if (i instanceof djs.ChatInputCommandInteraction) {
+      if (i.deferred) {
+        i.editReply({ embeds: [embed] });
       } else {
-        options.message?.reply({ embeds: [embed] });
+        i.reply({ embeds: [embed] });
       }
+    } else if (i instanceof djs.TextChannel) {
+      i.send({ embeds: [embed] });
     }
   }
 

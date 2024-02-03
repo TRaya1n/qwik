@@ -4,9 +4,8 @@
     "description": "A multipurpose Discord bot.",
     "main": "build/src/bot.ts",
     "scripts": {
-        "watch": "tsc -w",
-        "start": "node build/src/bot.js",
-        "bas": "tsc && npm run start",
+        "start": "tsc && NODE_ENV=production node build/src/bot.js",
+        "dev": "tsc && NODE_ENV=development node build/src/bot.js",
         "format": "prettier --write src/",
         "lint": "npx eslint src/"
     },

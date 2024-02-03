@@ -1,14 +1,9 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FunCommands = void 0;
 const plugin_subcommands_1 = require("@sapphire/plugin-subcommands");
 const index_1 = require("../lib/index");
 const discord_js_1 = require("discord.js");
-const misc_1 = __importDefault(require("../Schema/misc"));
-const utils_1 = __importDefault(require("../utils/utils"));
 class FunCommands extends plugin_subcommands_1.Subcommand {
     constructor(context, options) {
         super(context, {
@@ -21,11 +16,6 @@ class FunCommands extends plugin_subcommands_1.Subcommand {
                     name: "anime",
                     type: "group",
                     entries: [{ name: "quote", chatInputRun: "quote" }],
-                },
-                {
-                    name: "config",
-                    type: "group",
-                    entries: [{ name: "auto_joke", chatInputRun: "_auto_joke" }],
                 },
             ],
         });
@@ -58,7 +48,7 @@ class FunCommands extends plugin_subcommands_1.Subcommand {
                     .setDescription("Get a random joke!")
                     .addStringOption((option) => {
                     option.setName("category").setDescription("Select a category");
-                    index_1.APICategories.forEach((value) => option.addChoices({ name: `${value}`, value: `${value}` }));
+                    index_1.JokeAPICategories.forEach((value) => option.addChoices({ name: `${value}`, value: `${value}` }));
                     return option;
                 });
             })
@@ -68,7 +58,7 @@ class FunCommands extends plugin_subcommands_1.Subcommand {
                     .setDescription("Get a random fact!")
                     .addStringOption((option) => {
                     option.setName("type").setDescription("Select a type of fact!");
-                    index_1.getFactAPITypes.forEach((value) => option.addChoices({ name: value, value }));
+                    index_1.FactTypes.forEach((value) => option.addChoices({ name: value, value }));
                     return option;
                 });
             })
@@ -81,74 +71,8 @@ class FunCommands extends plugin_subcommands_1.Subcommand {
                         .setName("quote")
                         .setDescription("Get a anime quote.");
                 });
-            })
-                .addSubcommandGroup((group) => {
-                return group
-                    .setName("config")
-                    .setDescription("Config fun commands.")
-                    .addSubcommand((command) => {
-                    return command
-                        .setName("auto_joke")
-                        .setDescription("Auto send a joke to a channel!")
-                        .addBooleanOption((option) => {
-                        return option
-                            .setName("enabled")
-                            .setDescription("Do you want to enable or disable?")
-                            .setRequired(true);
-                    })
-                        .addChannelOption((option) => {
-                        return option
-                            .setName("channel")
-                            .setDescription("The channel to send the joke to.")
-                            .addChannelTypes(discord_js_1.ChannelType.GuildText)
-                            .setRequired(true);
-                    });
-                });
             });
         });
-    }
-    async _auto_joke(interaction) {
-        const { options, guild } = interaction;
-        await interaction.deferReply();
-        const channel = options.getChannel("channel", true);
-        const status = options.getBoolean("enabled", true);
-        const data = await misc_1.default.misc.findOne({ id: guild?.id });
-        if (data) {
-            if (status) {
-                data.auto_joke.enabled = status;
-                data.auto_joke.channelId = channel.id;
-                await data.save();
-                return interaction.editReply({
-                    embeds: [
-                        this.baseEmbed(interaction)
-                            .setDescription(`${utils_1.default.emoji(true)} | **Enabled auto joke in ${channel}, i will send a joke in the channel every 1 hour.**`)
-                            .setColor("Blurple"),
-                    ],
-                });
-            }
-            else {
-                data.auto_joke.enabled = status;
-                data.auto_joke.channelId = null;
-                await data.save();
-                return interaction.editReply({
-                    embeds: [
-                        this.baseEmbed(interaction)
-                            .setDescription(`${utils_1.default.emoji(true)} | **Disabled auto joke.**`)
-                            .setColor("Blurple"),
-                    ],
-                });
-            }
-        }
-        else {
-            await new misc_1.default.misc({ id: guild?.id }).save();
-            return interaction.editReply({
-                embeds: [
-                    this.baseEmbed(interaction)
-                        .setDescription(`${utils_1.default.emoji(false)} | **Looks like this server does not exist on my database... please run this command again.**`)
-                        .setColor("Blurple"),
-                ],
-            });
-        }
     }
     eightball(interaction) {
         const question = interaction.options.getString("question", true);
@@ -168,22 +92,27 @@ class FunCommands extends plugin_subcommands_1.Subcommand {
     }
     async joke(interaction) {
         const category = interaction.options.getString("category");
-        await (0, index_1.getJoke)({ category }, {
-            embed_options: { color: "Blurple", timestamp: true },
-            data: { target: interaction.user, message: interaction },
+        await (0, index_1.getJoke)(interaction, {
+            blacklist: ["nsfw", "racist", "sexist"],
+            category: category ? category : "Any",
+        }, {
+            author: {
+                name: interaction.user.username,
+                icon_url: interaction.user.displayAvatarURL(),
+            },
+            timestamp: true,
+            footer: { text: "Powered by: https://v2.jokeapi.dev | @lib/v2" },
         });
     }
     async facts(interaction) {
-        await (0, index_1.getFact)({
-            type: interaction.options.getString(`type`) || "useless",
-            embed: true,
-            message: interaction,
-            data: {
-                target: interaction.user,
-                color: "Blurple",
-                footer: true,
-                timestamp: true,
+        await (0, index_1.getFact)(interaction, {
+            type: interaction.options.getString("type") || "useless",
+            author: {
+                name: interaction.user.username,
+                icon_url: interaction.user.displayAvatarURL(),
             },
+            timestamp: true,
+            footer: { text: `Powered by: https://shorturl.at/bjvSW | @lib/v2` },
         });
     }
     async quote(interaction) {

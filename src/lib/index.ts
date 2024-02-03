@@ -1,7 +1,8 @@
-// Games
-export * from "./games/EightBall";
+/**
+ * @version 0.7.1
+ */
 
-// API
+export * from "./games/EightBall";
 export * from "./api/joke";
 export * from "./api/anime";
 export * from "./api/facts";
