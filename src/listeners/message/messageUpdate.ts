@@ -35,7 +35,7 @@ export class MessageUpdate extends Listener {
         },
         {
           name: "**Old:**",
-          value: `${utils.checkCharLimit(message.content, 1024)}`,
+          value: `${utils.checkCharLimit(oldMessage.content, 1024)}`,
         },
       )
       .setColor("Orange")

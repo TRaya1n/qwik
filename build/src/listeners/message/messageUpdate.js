@@ -35,7 +35,7 @@ class MessageUpdate extends framework_1.Listener {
             value: `${utils_1.default.checkCharLimit(message.content, 1024)}`,
         }, {
             name: "**Old:**",
-            value: `${utils_1.default.checkCharLimit(message.content, 1024)}`,
+            value: `${utils_1.default.checkCharLimit(oldMessage.content, 1024)}`,
         })
             .setColor("Orange")
             .setFooter({ text: `GuildID: ${message.guildId} | MessageUpdated` })
