@@ -1,6 +1,5 @@
 import { Listener } from "@sapphire/framework";
-import { misc } from "../Schema/misc";
-import { AutoJoke } from "../utils/works/AutoJoke";
+import { AutoSendJoke } from "../utils/auto/joke";
 
 export class ReadyListener extends Listener {
   public constructor(
@@ -19,11 +18,8 @@ export class ReadyListener extends Listener {
       `${this.container.client.user?.username}, is ready!`,
     );
 
-    setInterval(async () => {
-      const guilds = await misc.find();
-      for (const guild of guilds) {
-        AutoJoke(guild.id!, this.container.client);
-      }
-    }, 1200000); // 20 minutes
+    setInterval(() => {
+    AutoSendJoke(this.container.client);
+    }, 3600000);
   }
 }

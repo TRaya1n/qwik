@@ -102,13 +102,6 @@ class FunCommands extends plugin_subcommands_1.Subcommand {
                             .setDescription("The channel to send the joke to.")
                             .addChannelTypes(discord_js_1.ChannelType.GuildText)
                             .setRequired(true);
-                    })
-                        .addStringOption((option) => {
-                        return option
-                            .setName("every")
-                            .setDescription("How often should i send a joke?")
-                            .addChoices({ name: "5m", value: "300000" }, { name: "10m", value: "600000" })
-                            .setRequired(true);
                     });
                 });
             });
@@ -118,20 +111,17 @@ class FunCommands extends plugin_subcommands_1.Subcommand {
         const { options, guild } = interaction;
         await interaction.deferReply();
         const channel = options.getChannel("channel", true);
-        const every = Number(options.getString("every", true));
-        console.log(every);
         const status = options.getBoolean("enabled", true);
         const data = await misc_1.default.misc.findOne({ id: guild?.id });
         if (data) {
             if (status) {
                 data.auto_joke.enabled = status;
                 data.auto_joke.channelId = channel.id;
-                data.auto_joke.every = every;
                 await data.save();
                 return interaction.editReply({
                     embeds: [
                         this.baseEmbed(interaction)
-                            .setDescription(`${utils_1.default.emoji(true)} | **Enabled auto joke in ${channel}, i will send a joke in the channel every: ${every}**`)
+                            .setDescription(`${utils_1.default.emoji(true)} | **Enabled auto joke in ${channel}, i will send a joke in the channel every 1 hour.**`)
                             .setColor("Blurple"),
                     ],
                 });
@@ -139,7 +129,6 @@ class FunCommands extends plugin_subcommands_1.Subcommand {
             else {
                 data.auto_joke.enabled = status;
                 data.auto_joke.channelId = null;
-                data.auto_joke.every = 300000;
                 await data.save();
                 return interaction.editReply({
                     embeds: [

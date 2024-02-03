@@ -19,6 +19,11 @@ export class Moderation extends Subcommand {
         { name: "nickname", chatInputRun: "nickname" },
         { name: "kick", chatInputRun: "kick" },
         { name: "ban", chatInputRun: "ban" },
+        {
+          name: "role",
+          type: "group",
+          entries: [{ name: "add", chatInputRun: "roleAdd" }],
+        },
       ],
     });
   }
@@ -89,8 +94,129 @@ export class Moderation extends Subcommand {
                 .setName("reason")
                 .setDescription("The reason for banning this member.");
             });
+        })
+        .addSubcommandGroup((group) => {
+          return group
+            .setName("role")
+            .setDescription("Moderation role commands")
+            .addSubcommand((command) => {
+              return command
+                .setName("add")
+                .setDescription("Give a role to a member.")
+                .addUserOption((option) => {
+                  return option
+                    .setName("member")
+                    .setDescription("The member to give the role to.")
+                    .setRequired(true);
+                })
+                .addRoleOption((option) => {
+                  return option
+                    .setName("role")
+                    .setDescription("The role to give.")
+                    .setRequired(true);
+                });
+            });
         });
     });
+  }
+
+  public async roleAdd(interaction: Subcommand.ChatInputCommandInteraction) {
+    await interaction.deferReply();
+    const { options, guild } = interaction;
+    const interactionMember = await guild?.members.fetch(interaction.user.id);
+
+    if (
+      interactionMember &&
+      !this.checkPermissions(interactionMember, ["ManageRoles"])
+    ) {
+      return interaction.editReply({
+        embeds: [
+          this.baseEmbed(interaction)
+            .setDescription(
+              `${utils.emoji(false)} | **You don't have enough permissions to use this command.**`,
+            )
+            .setColor("Blurple"),
+        ],
+      });
+    }
+
+    const member = await guild?.members.fetch(
+      options.getUser("member", true).id,
+    );
+    const role = await guild?.roles.fetch(options.getRole("role", true).id);
+
+    if (!role) {
+      return interaction.editReply({
+        embeds: [
+          this.baseEmbed(interaction)
+            .setDescription(
+              `${utils.emoji(false)} | **The given role is not valid.**`,
+            )
+            .setColor("Orange"),
+        ],
+      });
+    }
+
+    if (!member) {
+      return interaction.editReply({
+        embeds: [
+          this.baseEmbed(interaction)
+            .setDescription(
+              `${utils.emoji(false)} | **The given member is not valid.**`,
+            )
+            .setColor("Orange"),
+        ],
+      });
+    }
+
+    if (utils.comparePositions(interactionMember, member)) {
+      // true = {member} has a higher role than {interactionMember}
+      return interaction.editReply({
+        embeds: [
+          this.baseEmbed(interaction)
+            .setDescription(
+              `${utils.emoji(false)} | **${member}, has a higher role than ${interaction.user.username}.**`,
+            )
+            .setColor("Orange"),
+        ],
+      });
+    }
+
+    if (!member.manageable) {
+      return interaction.editReply({
+        embeds: [
+          this.baseEmbed(interaction)
+            .setDescription(
+              `${utils.emoji(false)} | **I don't have enough permissions to manage this member**`,
+            )
+            .setColor("Orange"),
+        ],
+      });
+    }
+
+    try {
+      await member.roles.add(role);
+      return interaction.editReply({
+        embeds: [
+          this.baseEmbed(interaction)
+            .setDescription(
+              `${utils.emoji(true)} | **Gave ${role} to ${member}**`,
+            )
+            .setColor("Blurple"),
+        ],
+      });
+    } catch (error) {
+      console.log(error);
+      interaction.editReply({
+        embeds: [
+          this.baseEmbed(interaction)
+            .setDescription(
+              `${utils.emoji(false)} | **An error occurred while executing this command.**`,
+            )
+            .setColor("Red"),
+        ],
+      });
+    }
   }
 
   public async ban(interaction: Subcommand.ChatInputCommandInteraction) {

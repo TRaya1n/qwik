@@ -115,16 +115,6 @@ export class FunCommands extends Subcommand {
                     .setDescription("The channel to send the joke to.")
                     .addChannelTypes(ChannelType.GuildText)
                     .setRequired(true);
-                })
-                .addStringOption((option) => {
-                  return option
-                    .setName("every")
-                    .setDescription("How often should i send a joke?")
-                    .addChoices(
-                      { name: "5m", value: "300000" },
-                      { name: "10m", value: "600000" },
-                    )
-                    .setRequired(true);
                 });
             });
         });
@@ -135,21 +125,18 @@ export class FunCommands extends Subcommand {
     const { options, guild } = interaction;
     await interaction.deferReply();
     const channel = options.getChannel("channel", true);
-    const every = Number(options.getString("every", true));
-    console.log(every);
     const status = options.getBoolean("enabled", true);
     const data: any = await db.misc.findOne({ id: guild?.id });
     if (data) {
       if (status) {
         data.auto_joke.enabled = status;
         data.auto_joke.channelId = channel.id;
-        data.auto_joke.every = every;
         await data.save();
         return interaction.editReply({
           embeds: [
             this.baseEmbed(interaction)
               .setDescription(
-                `${utils.emoji(true)} | **Enabled auto joke in ${channel}, i will send a joke in the channel every: ${every}**`,
+                `${utils.emoji(true)} | **Enabled auto joke in ${channel}, i will send a joke in the channel every 1 hour.**`,
               )
               .setColor("Blurple"),
           ],
@@ -157,7 +144,6 @@ export class FunCommands extends Subcommand {
       } else {
         data.auto_joke.enabled = status;
         data.auto_joke.channelId = null;
-        data.auto_joke.every = 300000;
         await data.save();
         return interaction.editReply({
           embeds: [
