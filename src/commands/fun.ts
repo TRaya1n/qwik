@@ -6,6 +6,8 @@ import {
   getAnimeQuote,
   getFact,
   FactTypes,
+  AnimeImageSearch,
+  AnimeWaifu,
 } from "../lib/index";
 import { EmbedBuilder } from "discord.js";
 
@@ -23,7 +25,11 @@ export class FunCommands extends Subcommand {
         {
           name: "anime",
           type: "group",
-          entries: [{ name: "quote", chatInputRun: "quote" }],
+          entries: [
+            { name: "quote", chatInputRun: "animeQuote" },
+            { name: "fact", chatInputRun: "animeFact" },
+            { name: "search", chatInputRun: "animeImageSearch" },
+          ],
         },
       ],
     });
@@ -85,6 +91,22 @@ export class FunCommands extends Subcommand {
               return command
                 .setName("quote")
                 .setDescription("Get a anime quote.");
+            })
+            .addSubcommand((command) => {
+              return command
+                .setName("search")
+                .setDescription("Search for an anime using a image.")
+                .addAttachmentOption((option) => {
+                  return option
+                    .setName("image")
+                    .setDescription("The image you want to search with.")
+                    .setRequired(true);
+                });
+            })
+            .addSubcommand((command) => {
+              return command
+                .setName("fact")
+                .setDescription("Get a fact about anime.");
             });
         });
     });
@@ -138,7 +160,38 @@ export class FunCommands extends Subcommand {
     });
   }
 
-  public async quote(interaction: Subcommand.ChatInputCommandInteraction) {
+  public async animeImageSearch(
+    interaction: Subcommand.ChatInputCommandInteraction,
+  ) {
+    const attachment = interaction.options.getAttachment("image", true);
+    await interaction.deferReply();
+    await AnimeImageSearch(interaction, {
+      url: attachment.url,
+      author: {
+        name: interaction.user.username,
+        icon_url: interaction.user.displayAvatarURL(),
+      },
+    });
+  }
+
+  public async animeFact(interaction: Subcommand.ChatInputCommandInteraction) {
+    await interaction.deferReply();
+    const anime = new AnimeWaifu();
+    const embed = await anime.getFact(interaction);
+    if (!embed) return;
+    interaction.editReply({
+      embeds: [
+        embed
+          .setColor("Blurple")
+          .setAuthor({
+            name: interaction.user.username,
+            iconURL: interaction.user.displayAvatarURL(),
+          }),
+      ],
+    });
+  }
+
+  public async animeQuote(interaction: Subcommand.ChatInputCommandInteraction) {
     await getAnimeQuote(interaction, {
       author: {
         name: interaction.user.username,

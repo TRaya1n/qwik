@@ -15,7 +15,11 @@ class FunCommands extends plugin_subcommands_1.Subcommand {
                 {
                     name: "anime",
                     type: "group",
-                    entries: [{ name: "quote", chatInputRun: "quote" }],
+                    entries: [
+                        { name: "quote", chatInputRun: "animeQuote" },
+                        { name: "fact", chatInputRun: "animeFact" },
+                        { name: "search", chatInputRun: "animeImageSearch" },
+                    ],
                 },
             ],
         });
@@ -70,6 +74,22 @@ class FunCommands extends plugin_subcommands_1.Subcommand {
                     return command
                         .setName("quote")
                         .setDescription("Get a anime quote.");
+                })
+                    .addSubcommand((command) => {
+                    return command
+                        .setName("search")
+                        .setDescription("Search for an anime using a image.")
+                        .addAttachmentOption((option) => {
+                        return option
+                            .setName("image")
+                            .setDescription("The image you want to search with.")
+                            .setRequired(true);
+                    });
+                })
+                    .addSubcommand((command) => {
+                    return command
+                        .setName("fact")
+                        .setDescription("Get a fact about anime.");
                 });
             });
         });
@@ -115,7 +135,35 @@ class FunCommands extends plugin_subcommands_1.Subcommand {
             footer: { text: `Powered by: https://shorturl.at/bjvSW | @lib/v2` },
         });
     }
-    async quote(interaction) {
+    async animeImageSearch(interaction) {
+        const attachment = interaction.options.getAttachment("image", true);
+        await interaction.deferReply();
+        await (0, index_1.AnimeImageSearch)(interaction, {
+            url: attachment.url,
+            author: {
+                name: interaction.user.username,
+                icon_url: interaction.user.displayAvatarURL(),
+            },
+        });
+    }
+    async animeFact(interaction) {
+        await interaction.deferReply();
+        const anime = new index_1.AnimeWaifu();
+        const embed = await anime.getFact(interaction);
+        if (!embed)
+            return;
+        interaction.editReply({
+            embeds: [
+                embed
+                    .setColor("Blurple")
+                    .setAuthor({
+                    name: interaction.user.username,
+                    iconURL: interaction.user.displayAvatarURL(),
+                }),
+            ],
+        });
+    }
+    async animeQuote(interaction) {
         await (0, index_1.getAnimeQuote)(interaction, {
             author: {
                 name: interaction.user.username,
