@@ -7,7 +7,7 @@ exports.bot_config = {
     default_language: "en_US",
     dashboard: {
         enabled: false,
-        port: 10,
+        port: 0,
     },
 };
 exports.emojis = {

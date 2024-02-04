@@ -116,11 +116,11 @@ class FunCommands extends plugin_subcommands_1.Subcommand {
         });
     }
     async quote(interaction) {
-        await (0, index_1.getAnimeQuote)({
-            embed: true,
-            message: interaction,
-            target: interaction.user,
-            color: "Blurple",
+        await (0, index_1.getAnimeQuote)(interaction, {
+            author: {
+                name: interaction.user.username,
+                icon_url: interaction.user.displayAvatarURL(),
+            },
             timestamp: true,
         });
     }

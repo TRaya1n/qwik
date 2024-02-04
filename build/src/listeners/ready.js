@@ -11,7 +11,6 @@ class ReadyListener extends framework_1.Listener {
         });
     }
     async run() {
-        console.log(process.env.NODE_ENV);
         this.container.logger.info(`${this.container.client.user?.username}, is ready!`);
     }
 }

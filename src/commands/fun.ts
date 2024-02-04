@@ -139,11 +139,11 @@ export class FunCommands extends Subcommand {
   }
 
   public async quote(interaction: Subcommand.ChatInputCommandInteraction) {
-    await getAnimeQuote({
-      embed: true,
-      message: interaction,
-      target: interaction.user,
-      color: "Blurple",
+    await getAnimeQuote(interaction, {
+      author: {
+        name: interaction.user.username,
+        icon_url: interaction.user.displayAvatarURL(),
+      },
       timestamp: true,
     });
   }

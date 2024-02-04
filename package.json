@@ -1,6 +1,6 @@
 {
   "name": "qwik",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "A multipurpose Discord bot.",
   "main": "build/src/bot.ts",
   "scripts": {

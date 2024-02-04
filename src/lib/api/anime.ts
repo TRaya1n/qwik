@@ -1,15 +1,17 @@
 import axios from "axios";
 import djs from "discord.js";
 
-interface getAnimeQuoteOptions {
-  embed: boolean;
-  target?: djs.User;
-  message?: djs.Message | djs.ChatInputCommandInteraction;
+interface AnimeQuoteOptions {
+  author?: djs.APIEmbedAuthor;
   color?: djs.ColorResolvable;
   timestamp?: boolean;
+  footer?: djs.APIEmbedFooter;
 }
 
-export async function getAnimeQuote(options?: getAnimeQuoteOptions) {
+export async function getAnimeQuote(
+  i: djs.Message | djs.ChatInputCommandInteraction | djs.TextChannel,
+  data?: AnimeQuoteOptions,
+) {
   const response = await axios({
     url: "https://animechan.xyz/api/random",
     method: "GET",
@@ -23,37 +25,35 @@ export async function getAnimeQuote(options?: getAnimeQuoteOptions) {
   const character = response.data.character;
   const quote = response.data.quote;
 
-  if (options?.embed) {
-    const embed = new djs.EmbedBuilder();
+  const embed = new djs.EmbedBuilder().setColor(
+    data?.color ? data.color : "Blurple",
+  );
 
-    if (options.target) {
-      embed.setAuthor({
-        name: options.target.username,
-        iconURL: options.target.displayAvatarURL(),
-      });
-    }
+  if (data?.author) {
+    embed.setAuthor({
+      name: data.author.name,
+      iconURL: data.author.icon_url,
+    });
+  }
 
-    if (options.color) {
-      embed.setColor(options.color);
-    }
+  if (data?.timestamp) {
+    embed.setTimestamp();
+  }
 
-    if (options.timestamp) {
-      embed.setTimestamp();
-    }
+  embed.setDescription(
+    `- **Anime:**\n - ${anime}\n- **Character:**\n - ${character}\n- **Quote:**\n - ${quote}`,
+  );
 
-    embed.setDescription(
-      `- **Anime:**\n - ${anime}\n- **Character:**\n - ${character}\n- **Quote:**\n - ${quote}`,
-    );
-
-    if (options.message instanceof djs.Message) {
-      options.message.reply({ embeds: [embed] });
+  if (i instanceof djs.Message) {
+    i.reply({ embeds: [embed] });
+  } else if (i instanceof djs.ChatInputCommandInteraction) {
+    if (i.deferred) {
+      i.editReply({ embeds: [embed] });
     } else {
-      if (options.message?.deferred) {
-        options.message.editReply({ embeds: [embed] });
-      } else {
-        options.message?.reply({ embeds: [embed] });
-      }
+      i.reply({ embeds: [embed] });
     }
+  } else if (i instanceof djs.TextChannel) {
+    i.send({ embeds: [embed] });
   }
 
   return {

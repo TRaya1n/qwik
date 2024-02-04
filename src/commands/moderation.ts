@@ -22,7 +22,10 @@ export class Moderation extends Subcommand {
         {
           name: "role",
           type: "group",
-          entries: [{ name: "add", chatInputRun: "roleAdd" }],
+          entries: [
+            { name: "add", chatInputRun: "roleAdd" },
+            { name: "remove", chatInputRun: "roleRemove" },
+          ],
         },
       ],
     });
@@ -102,7 +105,7 @@ export class Moderation extends Subcommand {
             .addSubcommand((command) => {
               return command
                 .setName("add")
-                .setDescription("Give a role to a member.")
+                .setDescription("Add a role to a member.")
                 .addUserOption((option) => {
                   return option
                     .setName("member")
@@ -115,9 +118,145 @@ export class Moderation extends Subcommand {
                     .setDescription("The role to give.")
                     .setRequired(true);
                 });
+            })
+            .addSubcommand((command) => {
+              return command
+                .setName("remove")
+                .setDescription("Remove a role from a member.")
+                .addUserOption((option) => {
+                  return option
+                    .setName("member")
+                    .setDescription("The member to remove this role from.")
+                    .setRequired(true);
+                })
+                .addRoleOption((option) => {
+                  return option
+                    .setName("role")
+                    .setDescription("The role to remove from this member.")
+                    .setRequired(true);
+                });
             });
         });
     });
+  }
+
+  public async roleRemove(interaction: Subcommand.ChatInputCommandInteraction) {
+    await interaction.deferReply();
+    const { options, guild } = interaction;
+    const interactionMember = await guild?.members.fetch(interaction.user.id);
+    if (
+      interactionMember &&
+      !this.checkPermissions(interactionMember, ["ManageRoles"])
+    ) {
+      return interaction.editReply({
+        embeds: [
+          this.baseEmbed(interaction)
+            .setDescription(
+              `${utils.emoji(false)} | **You don't have enough permissions to use this command.**`,
+            )
+            .setColor("Blurple"),
+        ],
+      });
+    }
+
+    const role = await guild?.roles.fetch(options.getRole("role", true).id);
+    const member = await guild?.members.fetch(
+      options.getUser("member", true).id,
+    );
+
+    if (!role) {
+      return interaction.editReply({
+        embeds: [
+          this.baseEmbed(interaction)
+            .setDescription(
+              `${utils.emoji(false)} | **The given role is invalid.**`,
+            )
+            .setColor("Orange"),
+        ],
+      });
+    }
+
+    if (!member) {
+      return interaction.editReply({
+        embeds: [
+          this.baseEmbed(interaction)
+            .setDescription(
+              `${utils.emoji(false)} | **The given member is invalid.**`,
+            )
+            .setColor("Orange"),
+        ],
+      });
+    }
+
+    if (utils.comparePositions(interactionMember, member)) {
+      return interaction.editReply({
+        embeds: [
+          this.baseEmbed(interaction)
+            .setDescription(
+              `${utils.emoji(false)} | **${member}, has a higher role than ${interaction.user.username}**`,
+            )
+            .setColor("Orange"),
+        ],
+      });
+    }
+
+    if (!member.manageable) {
+      return interaction.editReply({
+        embeds: [
+          this.baseEmbed(interaction)
+            .setDescription(
+              `${utils.emoji(false)} | **I don't have enough permissions to manage this member**`,
+            )
+            .setColor("Orange"),
+        ],
+      });
+    }
+
+    try {
+      await member.roles.remove(role);
+      return interaction.editReply({
+        embeds: [
+          this.baseEmbed(interaction)
+            .setDescription(
+              `${utils.emoji(true)} | **Removed ${role.name} from ${member}**`,
+            )
+            .setColor("Blurple"),
+        ],
+      });
+    } catch (error) {
+      if (error.rawError.message === "Unknown Role") {
+        return interaction.editReply({
+          embeds: [
+            this.baseEmbed(interaction)
+              .setDescription(
+                `${utils.emoji(false)} | **I can't remove this role from this member.**`,
+              )
+              .setColor("Orange"),
+          ],
+        });
+      } else if (error.rawError.message === "Missing Permissions") {
+        return interaction.editReply({
+          embeds: [
+            this.baseEmbed(interaction)
+              .setDescription(
+                `${utils.emoji(false)} | **I don't have enough permissions to remove this role.**`,
+              )
+              .setColor("Orange"),
+          ],
+        });
+      }
+
+      this.container.logger.error(error);
+      return interaction.editReply({
+        embeds: [
+          this.baseEmbed(interaction)
+            .setDescription(
+              `${utils.emoji(false)} | **An error occurred while executing this command**`,
+            )
+            .setColor("Red"),
+        ],
+      });
+    }
   }
 
   public async roleAdd(interaction: Subcommand.ChatInputCommandInteraction) {
@@ -200,14 +339,36 @@ export class Moderation extends Subcommand {
         embeds: [
           this.baseEmbed(interaction)
             .setDescription(
-              `${utils.emoji(true)} | **Gave ${role} to ${member}**`,
+              `${utils.emoji(true)} | **Added ${role.name} to ${member}**`,
             )
             .setColor("Blurple"),
         ],
       });
     } catch (error) {
-      console.log(error);
-      interaction.editReply({
+      if (error.rawError.message === "Unknown Role") {
+        return interaction.editReply({
+          embeds: [
+            this.baseEmbed(interaction)
+              .setDescription(
+                `${utils.emoji(false)} | **I can't give this role to this member.**`,
+              )
+              .setColor("Orange"),
+          ],
+        });
+      } else if (error.rawError.message === "Missing Permissions") {
+        return interaction.editReply({
+          embeds: [
+            this.baseEmbed(interaction)
+              .setDescription(
+                `${utils.emoji(false)} | **I don't have enough permissions to give this role**`,
+              )
+              .setColor("Orange"),
+          ],
+        });
+      }
+
+      this.container.logger.error(error);
+      return interaction.editReply({
         embeds: [
           this.baseEmbed(interaction)
             .setDescription(
