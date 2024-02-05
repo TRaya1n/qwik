@@ -13,6 +13,14 @@ class FunCommands extends plugin_subcommands_1.Subcommand {
                 { name: "joke", chatInputRun: "joke" },
                 { name: "facts", chatInputRun: "facts" },
                 {
+                    name: "action",
+                    type: "group",
+                    entries: [
+                        { name: "threats", chatInputRun: "actionThreats" },
+                        { name: "distracted", chatInputRun: "actionDistracted" },
+                    ],
+                },
+                {
                     name: "anime",
                     type: "group",
                     entries: [
@@ -91,6 +99,39 @@ class FunCommands extends plugin_subcommands_1.Subcommand {
                         .setName("fact")
                         .setDescription("Get a fact about anime.");
                 });
+            })
+                .addSubcommandGroup((group) => {
+                return group
+                    .setName("action")
+                    .setDescription("Fun-action commands!")
+                    .addSubcommand((command) => {
+                    return command
+                        .setName("threats")
+                        .setDescription("Create a meme.")
+                        .addUserOption((option) => {
+                        return option
+                            .setName("member")
+                            .setDescription("The threat.")
+                            .setRequired(true);
+                    });
+                })
+                    .addSubcommand((command) => {
+                    return command
+                        .setName("distracted")
+                        .setDescription(`Distracted guy.`)
+                        .addUserOption((option) => {
+                        return option
+                            .setName("user")
+                            .setDescription("No description.")
+                            .setRequired(true);
+                    })
+                        .addUserOption((option) => {
+                        return option
+                            .setName('user2')
+                            .setDescription('No description.')
+                            .setRequired(true);
+                    });
+                });
             });
         });
     }
@@ -154,9 +195,7 @@ class FunCommands extends plugin_subcommands_1.Subcommand {
             return;
         interaction.editReply({
             embeds: [
-                embed
-                    .setColor("Blurple")
-                    .setAuthor({
+                embed.setColor("Blurple").setAuthor({
                     name: interaction.user.username,
                     iconURL: interaction.user.displayAvatarURL(),
                 }),
@@ -171,6 +210,26 @@ class FunCommands extends plugin_subcommands_1.Subcommand {
             },
             timestamp: true,
         });
+    }
+    async actionDistracted(interaction) {
+        await interaction.deferReply();
+        const user = interaction.options.getUser("user", true);
+        const user2 = interaction.options.getUser('user2', true);
+        const neko = new index_1.NekoAPI();
+        const url = await neko.kidnap({
+            avatar: user.displayAvatarURL({ extension: "png" }),
+            avatar2: user2.displayAvatarURL({ extension: 'png' })
+        });
+        interaction.editReply({ content: url ? url : 'An error occurred this could be related to an API issue.' });
+    }
+    async actionThreats(interaction) {
+        await interaction.deferReply();
+        const user = interaction.options.getUser("member", true);
+        const neko = new index_1.NekoAPI();
+        const url = await neko.getThreat({
+            url: `${user.displayAvatarURL({ extension: "png" })}`,
+        });
+        interaction.editReply({ content: url });
     }
     baseEmbed(interaction) {
         return new discord_js_1.EmbedBuilder()

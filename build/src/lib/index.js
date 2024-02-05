@@ -1,6 +1,6 @@
 "use strict";
 /**
- * @version 0.7.3
+ * @version 0.8.1
  */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -21,3 +21,4 @@ __exportStar(require("./games/EightBall"), exports);
 __exportStar(require("./api/joke"), exports);
 __exportStar(require("./api/anime"), exports);
 __exportStar(require("./api/facts"), exports);
+__exportStar(require("./api/neko"), exports);
