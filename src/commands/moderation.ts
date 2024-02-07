@@ -4,8 +4,11 @@ import {
   EmbedBuilder,
   PermissionsString,
   PermissionFlagsBits,
+  OAuth2Routes,
 } from "discord.js";
 import utils from "../utils/utils";
+import { CommandsModerationBaseObject } from "../lib/types/types";
+import { Result } from "@sapphire/framework";
 
 export class Moderation extends Subcommand {
   public constructor(
@@ -381,74 +384,23 @@ export class Moderation extends Subcommand {
   }
 
   public async ban(interaction: Subcommand.ChatInputCommandInteraction) {
-    if (interaction.member instanceof GuildMember) {
-      const results = this.checkPermissions(interaction.member, ["BanMembers"]);
-      if (!results) {
-        return interaction.reply({
-          content: `${utils.emoji(false)} | **You don't have enough permissions to use this command.**`,
-          ephemeral: true,
-        });
-      }
-    }
-
-    await interaction.deferReply();
-    const { options, guild, user } = interaction;
+    const { options, guild } = interaction;
     const embed = this.baseEmbed(interaction);
-
     const reason = options.getString("reason") || "No reason given";
     const member = await guild?.members.fetch(
       options.getUser("member", true).id,
     );
-    const interactionMember = await guild?.members.fetch(user.id);
+    const result = await this.BaseForKickBanNickname(interaction, {
+      checkIfFor: "bannable",
+      member: member,
+      requiredPermissionsToRun: "BanMembers",
+    });
 
-    if (!member) {
-      embed
-        .setDescription(
-          `${utils.emoji(false)} | **The specified member is not valid.**`,
-        )
-        .setColor("Orange");
-      return interaction.editReply({ embeds: [embed] });
-    }
-
-    if (member.id === this.container.client.id) {
-      embed
-        .setDescription(`${utils.emoji(false)} | **I can't ban myself.**`)
-        .setColor("Blurple");
-      return interaction.editReply({ embeds: [embed] });
-    }
-
-    if (member.id === guild?.ownerId) {
-      embed
-        .setDescription(`${utils.emoji(false)} | **Can't ban the guild owner**`)
-        .setColor("Orange");
-      return interaction.editReply({ embeds: [embed] });
-    }
-
-    if (
-      interactionMember?.roles &&
-      member.roles.highest.comparePositionTo(interactionMember.roles.highest) >=
-        1
-    ) {
-      embed
-        .setDescription(
-          `${utils.emoji(false)} | **The specified member has a higher role than you.**`,
-        )
-        .setColor("Orange");
-      return interaction.editReply({ embeds: [embed] });
-    }
-
-    if (!member.manageable) {
-      embed
-        .setDescription(
-          `${utils.emoji(false)} | **I don't have enough permissions to ban this member**`,
-        )
-        .setColor("Orange");
-      return interaction.editReply({ embeds: [embed] });
-    }
+    if (result.stoped) return;
 
     try {
       member
-        .send({
+        ?.send({
           embeds: [
             embed
               .setDescription(
@@ -457,13 +409,14 @@ export class Moderation extends Subcommand {
               .setColor("Red"),
           ],
         })
-        .catch(this.container.logger.error);
-      const u = await member.ban({ reason });
+        .catch((error) => this.container.logger.error(error));
+
+      await member?.ban({ reason });
       return interaction.editReply({
         embeds: [
           embed
             .setDescription(
-              `${utils.emoji(true)} | **Banned @${u.user.username}** | ${reason}`,
+              `${utils.emoji(true)} | **Banned @${member?.user.username}** | ${reason}`,
             )
             .setColor("Blurple"),
         ],
@@ -474,93 +427,25 @@ export class Moderation extends Subcommand {
   }
 
   public async kick(interaction: Subcommand.ChatInputCommandInteraction) {
-    if (interaction.member instanceof GuildMember) {
-      const results = this.checkPermissions(interaction.member, [
-        "KickMembers",
-      ]);
-      if (!results) {
-        interaction.reply({
-          content: `${utils.emoji(false)} | **You don't have enough permissions to use this command.**`,
-          ephemeral: true,
-        });
-      }
-    }
-
-    await interaction.deferReply();
-
     const { guild, options } = interaction;
     const member = await guild?.members.fetch(
       options.getUser("member", true).id,
     );
-    const interactionMember = await guild?.members.fetch(interaction.user.id);
     const reason = options.getString("reason") || "No reason given";
     const embed = this.baseEmbed(interaction);
+    const result = await this.BaseForKickBanNickname(interaction, {
+      checkIfFor: "kickable",
+      member: member,
+      requiredPermissionsToRun: "KickMembers",
+    });
 
-    if (!member) {
-      return interaction.editReply({
-        embeds: [
-          embed
-            .setDescription(
-              `${utils.emoji(false)} | **The specified member is not valid.**`,
-            )
-            .setColor("Orange"),
-        ],
-      });
-    }
-
-    if (member.id === this.container.client.user?.id) {
-      return interaction.editReply({
-        embeds: [
-          embed
-            .setDescription(`${utils.emoji(false)} | **I can't kick myself**`)
-            .setColor("Orange"),
-        ],
-      });
-    }
-
-    if (member.id === guild?.ownerId) {
-      return interaction.editReply({
-        embeds: [
-          embed
-            .setDescription(
-              `${utils.emoji(false)} | **Can't kick the guild owner.**`,
-            )
-            .setColor("Orange"),
-        ],
-      });
-    }
-
-    if (!member.kickable) {
-      return interaction.editReply({
-        embeds: [
-          embed
-            .setDescription(
-              `${utils.emoji(false)} | **I don't have enough permissions to kick this member.**`,
-            )
-            .setColor("Orange"),
-        ],
-      });
-    }
-
-    if (
-      interactionMember &&
-      member.roles.highest.comparePositionTo(interactionMember.roles.highest) >=
-        1
-    ) {
-      return interaction.editReply({
-        embeds: [
-          embed
-            .setDescription(
-              `${utils.emoji(false)} | **The specified member has a higher role than you.**`,
-            )
-            .setColor("Orange"),
-        ],
-      });
+    if (result.stoped) {
+      return;
     }
 
     try {
       member
-        .send({
+        ?.send({
           embeds: [
             embed
               .setDescription(
@@ -569,13 +454,13 @@ export class Moderation extends Subcommand {
               .setColor("Orange"),
           ],
         })
-        .catch(this.container.logger.error);
+        .catch((error) => this.container.logger.error(error));
 
-      const u = await member.kick(reason);
+      await member?.kick(reason);
       return interaction.editReply({
         embeds: [
           embed.setDescription(
-            `${utils.emoji(true)} | **Kicked @${u.user.username}** | ${reason}`,
+            `${utils.emoji(true)} | **Kicked @${member?.user.username}** | ${reason}`,
           ),
         ],
       });
@@ -585,40 +470,106 @@ export class Moderation extends Subcommand {
   }
 
   public async nickname(interaction: Subcommand.ChatInputCommandInteraction) {
-    if (interaction.member instanceof GuildMember) {
-      const results = this.checkPermissions(interaction.member, [
-        "KickMembers",
-      ]);
-      if (!results) {
-        return interaction.reply({
-          content: `${utils.emoji(false)} | **You don't have enough permissions to use this command.**`,
-          ephemeral: true,
-        });
-      }
-    }
-
-    await interaction.deferReply();
     const { guild, options } = interaction;
     const member = await guild?.members.fetch(
       interaction.options.getUser("member", true).id,
     );
     const nickname = options.getString("nickname");
     const embed = this.baseEmbed(interaction);
+    const result = await this.BaseForKickBanNickname(interaction, {
+      checkIfFor: "manageable",
+      member: member,
+      requiredPermissionsToRun: "ManageNicknames",
+    });
 
-    if (!member) {
-      return interaction.editReply({
+    if (result.stoped) return;
+
+    try {
+      let GuildMemb;
+      if (nickname === "mod.nick") {
+        GuildMemb = await member?.setNickname(`Mod.${utils.randomString(10)}`);
+      } else {
+        GuildMemb = await member?.setNickname(nickname);
+      }
+      interaction.editReply({
         embeds: [
           embed
             .setDescription(
-              `${utils.emoji(false)} | **The specified member is not valid.`,
+              `${utils.emoji(true)} | **Changed @${member?.user.username}'s nickname to ${GuildMemb?.nickname}**`,
+            )
+            .setColor("Blurple"),
+        ],
+      });
+    } catch (error) {
+      this.container.logger.error(error);
+    }
+  }
+
+  private async BaseForKickBanNickname(
+    interaction: Subcommand.ChatInputCommandInteraction,
+    input: CommandsModerationBaseObject,
+  ) {
+    await interaction.deferReply();
+    const embed = this.baseEmbed(interaction);
+    const interactionMember = await interaction.guild?.members.fetch(
+      interaction.user.id,
+    );
+    if (
+      !interactionMember?.permissions.has(
+        PermissionFlagsBits[input.requiredPermissionsToRun],
+      )
+    ) {
+      interaction.editReply({
+        embeds: [
+          embed
+            .setDescription(
+              `${utils.emoji(false)} | **You don't have enough permissions to use this command.**`,
             )
             .setColor("Orange"),
         ],
       });
+      return { stoped: true, where: "InteractionMember" };
     }
-
-    if (!member.manageable) {
-      return interaction.editReply({
+    if (!input.member) {
+      interaction.editReply({
+        embeds: [
+          embed.setDescription(
+            `${utils.emoji(false)} | **The specified member is invalid**`,
+          ),
+        ],
+      });
+      return { stoped: true, where: "MemberIsInvalid" };
+    }
+    if (input.member.id === this.container.client.user?.id) {
+      interaction.editReply({
+        embeds: [
+          embed
+            .setDescription(
+              `${utils.emoji(false)} | **I can't manage myself.**`,
+            )
+            .setColor("Orange"),
+        ],
+      });
+      return { stoped: true, where: "MemberIsClient" };
+    }
+    if (
+      input.member.roles.highest.comparePositionTo(
+        interactionMember.roles.highest,
+      ) >= 1
+    ) {
+      interaction.editReply({
+        embeds: [
+          embed
+            .setDescription(
+              `${utils.emoji(false)} | **${input.member}, has a higher role than ${interactionMember}.**`,
+            )
+            .setColor("Orange"),
+        ],
+      });
+      return { stoped: true, where: "MemberHasHigherRole" };
+    }
+    if (!input.member[input.checkIfFor]) {
+      interaction.editReply({
         embeds: [
           embed
             .setDescription(
@@ -627,33 +578,10 @@ export class Moderation extends Subcommand {
             .setColor("Orange"),
         ],
       });
+      return { stoped: true, where: `MemberIsNot${input.checkIfFor}` };
     }
 
-    await this.changeNickname(member, nickname);
-    interaction.editReply({
-      embeds: [
-        embed
-          .setDescription(
-            `${utils.emoji(true)} | **Changed @${member.user.username}'s nickname to ${member.nickname}`,
-          )
-          .setColor("Blurple"),
-      ],
-    });
-  }
-
-  private async changeNickname(
-    member: GuildMember | undefined,
-    nickname: string | null,
-  ) {
-    if (nickname === "mod.nick") {
-      await member?.setNickname(
-        `Moderated Nickname ${Math.floor(100).toString(3)}`,
-      );
-      return true;
-    } else {
-      await member?.setNickname(nickname);
-      return true;
-    }
+    return { stoped: false };
   }
 
   private checkPermissions(

@@ -15,6 +15,10 @@ export class AutoMod extends Subcommand {
           name: "invite",
           chatInputRun: "invite",
         },
+        {
+          name: "link",
+          chatInputRun: "link",
+        },
       ],
     });
   }
@@ -46,8 +50,65 @@ export class AutoMod extends Subcommand {
                   { name: "Ban", value: "ban" },
                 );
             });
+        })
+        .addSubcommand((command) => {
+          return command
+            .setName("link")
+            .setDescription("Config anti links")
+            .addBooleanOption((option) => {
+              return option
+                .setName("enabled")
+                .setDescription("Enable/Disable anti link module.")
+                .setRequired(true);
+            })
+            .addStringOption((option) => {
+              return option
+                .setName("action")
+                .setDescription("Action to use")
+                .addChoices(
+                  {
+                    name: "Delete",
+                    value: "delete",
+                  },
+                  {
+                    name: "Kick",
+                    value: "kick",
+                  },
+                  {
+                    name: "Ban",
+                    value: "ban",
+                  },
+                );
+            });
         });
     });
+  }
+
+  public async link(interaction: Subcommand.ChatInputCommandInteraction) {
+    const embed = this.baseEmbed(interaction);
+    const { options, guild } = interaction;
+    const status = options.getBoolean('enabled', true);
+    const action = options.getString('action') || "delete";
+    await interaction.deferReply();
+    const data = await guilds.findOne({ id: guild?.id });
+    if (data) {
+      const result = await this.config('anti_link', data, status, action);
+      if (result) {
+        interaction.editReply({ 
+          embeds: [
+            embed.setDescription(`${utils.emoji(true)} | **${status ? 'Enabled' : 'Disabled'} anti link settings.**`).setColor('Blurple')
+          ]
+        })
+      } else {
+        await new guilds({ id: guild?.id }).save();
+        interaction.editReply({
+          embeds: [
+            embed.setDescription(`${utils.emoji(false)} | **Looks like this server has never been configured, please re-run this command.`).setColor
+            ('Blurple')
+          ]
+        })
+      }
+    }
   }
 
   public async invite(interaction: Subcommand.ChatInputCommandInteraction) {

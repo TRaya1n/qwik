@@ -1,3 +1,5 @@
+import djs from "discord.js";
+
 export interface BaseNekoURLObject {
   url: string;
 }
@@ -9,7 +11,7 @@ export interface NekoDistractedObject {
 
 export enum NekoAPITypes {
   Threat = "threats",
-  Distracted = "ship"
+  Distracted = "ship",
 }
 
 type NekoAPITypeString = "threats" | "ship";
@@ -20,4 +22,15 @@ type NekoAPITypeString = "threats" | "ship";
  */
 export function NekoBuildURL(type: NekoAPITypeString | NekoAPITypes) {
   return `https://nekobot.xyz/api/imagegen?type=${type}`;
+}
+
+type CommandsModerationBaseCheckIfForString =
+  | "manageable"
+  | "kickable"
+  | "bannable";
+
+export interface CommandsModerationBaseObject {
+  requiredPermissionsToRun: djs.PermissionsString;
+  member: djs.GuildMember | undefined;
+  checkIfFor: CommandsModerationBaseCheckIfForString;
 }

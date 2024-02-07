@@ -1,5 +1,10 @@
 import djs from "discord.js";
-import { BaseNekoURLObject, NekoDistractedObject, NekoAPITypes, NekoBuildURL } from "../types/types";
+import {
+  BaseNekoURLObject,
+  NekoDistractedObject,
+  NekoAPITypes,
+  NekoBuildURL,
+} from "../types/types";
 import axios from "axios";
 
 export class NekoAPI {
@@ -39,7 +44,7 @@ export class NekoAPI {
         url: `${NekoBuildURL(NekoAPITypes.Distracted)}&user1=${input.avatar}&user2=${input.avatar2}`,
       });
 
-      if (!response.data) return 'An error...'
+      if (!response.data) return "An error...";
 
       return response.data.message;
     } catch (error) {

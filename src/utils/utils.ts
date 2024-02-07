@@ -111,7 +111,19 @@ export function checkForInviteLink(content: string) {
   return false;
 }
 
+export function randomString(len: number) {
+  let charset =
+    "1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM!@#$%^&*()";
+  let result = "";
+  for (let i = 0; i < len; i++) {
+    let charsetlength = charset.length;
+    result += charset.charAt(Math.floor(Math.random() * charsetlength));
+  }
+  return result;
+}
+
 export default {
+  randomString,
   checkCharLimit,
   comparePositions: compareRolePositions,
   memberPermissions: checkMemberPermissions,

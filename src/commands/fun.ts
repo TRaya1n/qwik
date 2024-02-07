@@ -145,10 +145,10 @@ export class FunCommands extends Subcommand {
                 })
                 .addUserOption((option) => {
                   return option
-                  .setName('user2')
-                  .setDescription('No description.')
-                  .setRequired(true)
-                })
+                    .setName("user2")
+                    .setDescription("No description.")
+                    .setRequired(true);
+                });
             });
         });
     });
@@ -241,16 +241,22 @@ export class FunCommands extends Subcommand {
     });
   }
 
-  public async actionDistracted(interaction: Subcommand.ChatInputCommandInteraction) {
+  public async actionDistracted(
+    interaction: Subcommand.ChatInputCommandInteraction,
+  ) {
     await interaction.deferReply();
     const user = interaction.options.getUser("user", true);
-    const user2 = interaction.options.getUser('user2', true);
+    const user2 = interaction.options.getUser("user2", true);
     const neko = new NekoAPI();
     const url = await neko.distracted({
       avatar: user.displayAvatarURL({ extension: "png" }),
-      avatar2: user2.displayAvatarURL({ extension: 'png' })
+      avatar2: user2.displayAvatarURL({ extension: "png" }),
     });
-    interaction.editReply({ content: url ? url : 'An error occurred this could be related to an API issue.' });
+    interaction.editReply({
+      content: url
+        ? url
+        : "An error occurred this could be related to an API issue.",
+    });
   }
 
   public async actionThreats(

@@ -4,7 +4,7 @@ import {
   RegisterBehavior,
   ApplicationCommandRegistries,
 } from "@sapphire/framework";
-import { GatewayIntentBits, Partials } from "discord.js";
+import { GatewayIntentBits, Options } from "discord.js";
 import mongoose from "mongoose";
 
 // Configs
@@ -22,6 +22,18 @@ const client = new SapphireClient({
     level: LogLevel.Debug,
   },
   loadApplicationCommandRegistriesStatusListeners: false,
+  makeCache: Options.cacheWithLimits({
+    GuildMemberManager: {
+      maxSize: 0,
+      keepOverLimit: (value) => value.id === process.env.CLIENT_ID,
+    },
+    GuildMessageManager: {
+      maxSize: 0,
+    },
+    UserManager: {
+      maxSize: 1000,
+    },
+  }),
 });
 
 ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(

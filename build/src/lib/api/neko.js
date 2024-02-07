@@ -35,13 +35,13 @@ class NekoAPI {
      * @param {NekoDistractedObject} input
      * @returns {string}
      */
-    async kidnap(input) {
+    async distracted(input) {
         try {
             const response = await (0, axios_1.default)({
-                url: `https://nekobot.xyz/api/imagegen?type=${types_1.NekoAPITypes.Distracted}&user1=${input.avatar}&user2=${input.avatar2}`,
+                url: `${(0, types_1.NekoBuildURL)(types_1.NekoAPITypes.Distracted)}&user1=${input.avatar}&user2=${input.avatar2}`,
             });
             if (!response.data)
-                return 'An error...';
+                return "An error...";
             return response.data.message;
         }
         catch (error) {

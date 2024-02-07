@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkForInviteLink = exports.checkCharLimit = exports.compareRolePositions = exports.checkMemberPermissions = exports.checkInteractionUserPermissions = exports.eod = exports.tof = void 0;
+exports.randomString = exports.checkForInviteLink = exports.checkCharLimit = exports.compareRolePositions = exports.checkMemberPermissions = exports.checkInteractionUserPermissions = exports.eod = exports.tof = void 0;
 const config_1 = require("../config");
 /**
  *
@@ -92,7 +92,18 @@ function checkForInviteLink(content) {
     return false;
 }
 exports.checkForInviteLink = checkForInviteLink;
+function randomString(len) {
+    let charset = "1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM!@#$%^&*()";
+    let result = "";
+    for (let i = 0; i < len; i++) {
+        let charsetlength = charset.length;
+        result += charset.charAt(Math.floor(Math.random() * charsetlength));
+    }
+    return result;
+}
+exports.randomString = randomString;
 exports.default = {
+    randomString,
     checkCharLimit,
     comparePositions: compareRolePositions,
     memberPermissions: checkMemberPermissions,

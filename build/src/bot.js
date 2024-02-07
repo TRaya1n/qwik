@@ -20,6 +20,18 @@ const client = new framework_1.SapphireClient({
         level: framework_1.LogLevel.Debug,
     },
     loadApplicationCommandRegistriesStatusListeners: false,
+    makeCache: discord_js_1.Options.cacheWithLimits({
+        GuildMemberManager: {
+            maxSize: 0,
+            keepOverLimit: (value) => value.id === process.env.CLIENT_ID,
+        },
+        GuildMessageManager: {
+            maxSize: 0,
+        },
+        UserManager: {
+            maxSize: 1000,
+        },
+    }),
 });
 framework_1.ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(framework_1.RegisterBehavior.BulkOverwrite);
 const main = async () => {

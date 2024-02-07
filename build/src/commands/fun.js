@@ -127,8 +127,8 @@ class FunCommands extends plugin_subcommands_1.Subcommand {
                     })
                         .addUserOption((option) => {
                         return option
-                            .setName('user2')
-                            .setDescription('No description.')
+                            .setName("user2")
+                            .setDescription("No description.")
                             .setRequired(true);
                     });
                 });
@@ -214,13 +214,17 @@ class FunCommands extends plugin_subcommands_1.Subcommand {
     async actionDistracted(interaction) {
         await interaction.deferReply();
         const user = interaction.options.getUser("user", true);
-        const user2 = interaction.options.getUser('user2', true);
+        const user2 = interaction.options.getUser("user2", true);
         const neko = new index_1.NekoAPI();
-        const url = await neko.kidnap({
+        const url = await neko.distracted({
             avatar: user.displayAvatarURL({ extension: "png" }),
-            avatar2: user2.displayAvatarURL({ extension: 'png' })
+            avatar2: user2.displayAvatarURL({ extension: "png" }),
         });
-        interaction.editReply({ content: url ? url : 'An error occurred this could be related to an API issue.' });
+        interaction.editReply({
+            content: url
+                ? url
+                : "An error occurred this could be related to an API issue.",
+        });
     }
     async actionThreats(interaction) {
         await interaction.deferReply();
