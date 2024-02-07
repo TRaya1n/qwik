@@ -329,13 +329,15 @@ class Moderation extends plugin_subcommands_1.Subcommand {
         if (result.stoped)
             return;
         try {
-            member?.send({
+            member
+                ?.send({
                 embeds: [
                     embed
                         .setDescription(`**You have been banned from ${guild?.name}**\n**Reason:** ${reason}`)
                         .setColor("Red"),
                 ],
-            });
+            })
+                .catch((error) => this.container.logger.error(error));
             await member?.ban({ reason });
             return interaction.editReply({
                 embeds: [
@@ -363,13 +365,15 @@ class Moderation extends plugin_subcommands_1.Subcommand {
             return;
         }
         try {
-            member?.send({
+            member
+                ?.send({
                 embeds: [
                     embed
                         .setDescription(`**You have been kicked from ${guild?.name}** | ${reason}`)
                         .setColor("Orange"),
                 ],
-            });
+            })
+                .catch((error) => this.container.logger.error(error));
             await member?.kick(reason);
             return interaction.editReply({
                 embeds: [
@@ -435,20 +439,12 @@ class Moderation extends plugin_subcommands_1.Subcommand {
             });
             return { stoped: true, where: "MemberIsInvalid" };
         }
-        if (input.member.id === interaction.guild?.ownerId) {
-            interaction.editReply({
-                embeds: [
-                    embed
-                        .setDescription(`${utils_1.default.emoji(false)} | **I can't ban the server owner.**`)
-                        .setColor("Orange"),
-                ],
-            });
-            return { stoped: true, where: "MemberIsGuildOwner" };
-        }
         if (input.member.id === this.container.client.user?.id) {
             interaction.editReply({
                 embeds: [
-                    embed.setDescription(`${utils_1.default.emoji(false)} | **I can't ban myself.**`),
+                    embed
+                        .setDescription(`${utils_1.default.emoji(false)} | **I can't manage myself.**`)
+                        .setColor("Orange"),
                 ],
             });
             return { stoped: true, where: "MemberIsClient" };

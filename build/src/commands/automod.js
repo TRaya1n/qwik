@@ -17,6 +17,10 @@ class AutoMod extends plugin_subcommands_1.Subcommand {
                     name: "invite",
                     chatInputRun: "invite",
                 },
+                {
+                    name: "link",
+                    chatInputRun: "link",
+                },
             ],
         });
     }
@@ -43,8 +47,60 @@ class AutoMod extends plugin_subcommands_1.Subcommand {
                         .setDescription("Action to use.")
                         .addChoices({ name: "Delete", value: "delete" }, { name: "Kick", value: "kick" }, { name: "Ban", value: "ban" });
                 });
+            })
+                .addSubcommand((command) => {
+                return command
+                    .setName("link")
+                    .setDescription("Config anti links")
+                    .addBooleanOption((option) => {
+                    return option
+                        .setName("enabled")
+                        .setDescription("Enable/Disable anti link module.")
+                        .setRequired(true);
+                })
+                    .addStringOption((option) => {
+                    return option
+                        .setName("action")
+                        .setDescription("Action to use")
+                        .addChoices({
+                        name: "Delete",
+                        value: "delete",
+                    }, {
+                        name: "Kick",
+                        value: "kick",
+                    }, {
+                        name: "Ban",
+                        value: "ban",
+                    });
+                });
             });
         });
+    }
+    async link(interaction) {
+        const embed = this.baseEmbed(interaction);
+        const { options, guild } = interaction;
+        const status = options.getBoolean('enabled', true);
+        const action = options.getString('action') || "delete";
+        await interaction.deferReply();
+        const data = await guild_1.guilds.findOne({ id: guild?.id });
+        if (data) {
+            const result = await this.config('anti_link', data, status, action);
+            if (result) {
+                interaction.editReply({
+                    embeds: [
+                        embed.setDescription(`${utils_1.default.emoji(true)} | **${status ? 'Enabled' : 'Disabled'} anti link settings.**`).setColor('Blurple')
+                    ]
+                });
+            }
+            else {
+                await new guild_1.guilds({ id: guild?.id }).save();
+                interaction.editReply({
+                    embeds: [
+                        embed.setDescription(`${utils_1.default.emoji(false)} | **Looks like this server has never been configured, please re-run this command.`).setColor('Blurple')
+                    ]
+                });
+            }
+        }
     }
     async invite(interaction) {
         const embed = this.baseEmbed(interaction);
