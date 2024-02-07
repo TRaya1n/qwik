@@ -14,8 +14,8 @@ Qwik
    :hidden:
    :caption: Terms of Service
 
-   terms-of-service/tos.rst
-   terms-of-service/privacy-policy.rst
+   legal/tos.rst
+   legal/privacy-policy.rst
    
 
 .. figure:: /_static/qwik.png
@@ -23,7 +23,7 @@ Qwik
 
 .. image:: https://img.shields.io/discord/1145897416160194590?logo=discord&logoColor=white&label=Discord&color=%235865F2&link=https%3A%2F%2Fdiscord.gg%2Fns3e74frqn
    :alt: Discord
-   :target: https://discord.gg/ns3e74frqn
+   :target: https://discord.gg/?nothereyet=yes
 
 .. image:: https://img.shields.io/github/v/release/No767/Kumiko?label=Release&logo=github&sort=semver
    :alt: GitHub release (latest SemVer)
@@ -60,7 +60,7 @@ Resources and Links
 -------------------
 
 - `GitHub <https://github.com/TRaya1n/qwik/blob/QwikV2/>`_
-- `Discord Server <https://discord.gg/?=nothereyet>`_
+- `Discord Server <https://discord.gg/?=nothereyet=yes>`_
 
 Project Links
 ^^^^^^^^^^^^^
