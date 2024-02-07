@@ -43,6 +43,4 @@ html_theme_options = {
 }
 
 ogp_site_url = "https://qwik.readthedocs.io"
-#ogp_image = (
-  #  ""
-#}
+ogp_image = { "https://raw.githubusercontent.com/TRaya1n/qwik/QwikV2/docs/source/_static/qwik.png" }
